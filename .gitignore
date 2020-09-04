@@ -1,15 +1,31 @@
-# Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
+*.pidb
+*.exe
+bin/
+*.userprefs
+tests/output
+src/generator/generator
+*.pc
+.DS_Store
+*.user
+*.suo
+*.DotSettings
+*.sdf
+*.opensdf
+*.pdb
+*.config
+*.filters
+*.metagen
+*.ilk
+*.manifest
+*.tmp
+*.cache
+*.force
 
-# Visual Studio 2015/2017 cache/options directory
-.vs/
-GMsh.Gh/
+/.vs
+/.vscode
+
+# Nuget: do not include produced packages
+/build/nuget/*.nupkg
+/build/nuget/tools/*
+build/
+**/obj
