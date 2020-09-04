@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "x1": {
+      "commandName": "Project",
+      "commandLineArgs": "t6.msh"
+    }
+  }
+}
