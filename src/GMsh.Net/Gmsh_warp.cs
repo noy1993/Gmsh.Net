@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Security;
 
 namespace Gmsh_warp
@@ -748,6 +748,11 @@ namespace Gmsh_warp
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshModelGeoAddBezier")]
             internal static extern int GmshModelGeoAddBezier(int* pointTags, long pointTags_n, int tag, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelOccAddTrimmedSurface")]
+            internal static extern int GmshModelOccAddTrimmedSurface(int surfaceTag, int* wireTags, long wireTags_n, int wire3D, int tag, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
@@ -3996,6 +4001,19 @@ namespace Gmsh_warp
                     var __arg3 = __ierr3;
                     var __ret = __Internal.GmshModelOccAddBezier(__arg0, pointTags_n, tag, __arg3);
                     return __ret;
+                }
+            }
+        }
+
+        public static void GmshModelOccAddTrimmedSurface(int surfaceTag, int[] wireTags, long wireTags_n, int wire3D, int tag, ref int ierr)
+        {
+            fixed (int* __wireTags0 = wireTags)
+            {
+                var __arg0 = __wireTags0;
+                fixed (int* __ierr3 = &ierr)
+                {
+                    var __arg3 = __ierr3;
+                    __Internal.GmshModelOccAddTrimmedSurface(surfaceTag, __arg0, wireTags_n, wire3D, tag, __arg3);
                 }
             }
         }

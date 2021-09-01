@@ -1,4 +1,4 @@
-﻿using Gmsh_warp;
+using Gmsh_warp;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -298,6 +298,20 @@ namespace GmshNet
                     var index = Gmsh_Warp.GmshModelOccAddBezierSurface(pointTags, pointTags.LongLength, numPointsU, tag, ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                     return index;
+                }
+
+                /// <summary>                
+                /// Trim the surface surfaceTag with the wires wireTags, replacing any existing trimming curves. 
+                /// The first wire defines the external contour, the others define holes. 
+                /// If wire3D is set, consider wire curves as 3D curves and project them on the surface; 
+                /// otherwise consider the wire curves as defined in the parametric space of the surface.
+                /// If tag is positive, set the tag explicitly; otherwise a new tag is selected automatically.
+                /// Return the tag of the trimmed surface.
+                /// </summary>
+                public static void AddTrimmedSurface(int surfacetag, int[] wireTags, bool wire3D = false, int tag = -1)
+                {
+                    Gmsh_Warp.GmshModelOccAddTrimmedSurface(surfacetag, wireTags, wireTags.LongLength, Convert.ToInt32(wire3D), tag, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                 }
 
                 /// <summary>
