@@ -15,6 +15,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>src\GMsh.Net\bin\Release\netstandard2.0\GMsh.Net.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

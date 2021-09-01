@@ -789,18 +789,17 @@ namespace GmshNet
                 }
 
                 /// <summary>
-                /// Get the global edge identifier `edgeNum' for an input list of node pairs,
-                /// concatenated in the vector `edgeNodes'.  Warning: this is an experimental
-                /// feature and will probably change in a future release.
+                /// Get the global unique mesh edge identifiers edgeTags and orientations edgeOrientation 
+                /// for an input list of node tag pairs defining these edges, concatenated in the vector nodeTags.
                 /// </summary>
-                public static int[] GetEdgeNumber(int[] edgeNodes)
+                public static int[] GetEdges(int[] edgeNodes)
                 {
                     unsafe
                     {
                         int* edgeNum_ptr;
                         long edgeNum_n = 0;
 
-                        Gmsh_Warp.GmshModelMeshGetEdgeNumber(edgeNodes, edgeNodes.LongLength, &edgeNum_ptr, ref edgeNum_n, ref Gmsh._staticreff);
+                        Gmsh_Warp.GmshModelMeshGetGetEdges(edgeNodes, edgeNodes.LongLength, &edgeNum_ptr, ref edgeNum_n, ref Gmsh._staticreff);
 
                         var edgeNum = UnsafeHelp.ToIntArray(edgeNum_ptr, edgeNum_n);
                         Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
@@ -1271,11 +1270,12 @@ namespace GmshNet
                 /// boundary if the surface is open. If `forReparametrization' is set, create
                 /// edges and surfaces that can be reparametrized using a single map. If
                 /// `curveAngle' is less than Pi, also force curves to be split according to
-                /// `curveAngle'.
+                /// `curveAngle'. 
+                /// If exportDiscrete is set, clear any built-in CAD kernel entities and export the discrete entities in the built-in CAD kernel.
                 /// </summary>
-                public static void ClassifySurfaces(double angle, bool boundary, bool forReparametrization, double curveAngle)
+                public static void ClassifySurfaces(double angle, bool boundary, bool forReparametrization, double curveAngle, bool exportDiscrete = true)
                 {
-                    Gmsh_Warp.GmshModelMeshClassifySurfaces(angle, Convert.ToInt32(boundary), Convert.ToInt32(forReparametrization), curveAngle, ref Gmsh._staticreff);
+                    Gmsh_Warp.GmshModelMeshClassifySurfaces(angle, Convert.ToInt32(boundary), Convert.ToInt32(forReparametrization), curveAngle, Convert.ToInt32(exportDiscrete), ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                 }
 
