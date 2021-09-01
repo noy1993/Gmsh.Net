@@ -7,7 +7,7 @@ namespace Gmsh_warp
     {
         internal partial struct __Internal
         {
-            private const string dllname = "gmsh-4.7";
+            private const string dllname = "gmsh-4.8";
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
