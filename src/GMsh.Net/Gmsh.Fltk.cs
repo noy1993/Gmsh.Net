@@ -24,7 +24,7 @@ namespace GmshNet
 
             /// <summary>
             /// Wait at most `time' seconds for user interface events and return. If `time'
-            /// < 0, wait indefinitely. First automatically create the user interface if it
+            /// &lt; 0, wait indefinitely. First automatically create the user interface if it
             /// has not yet been initialized. Can only be called in the main thread.
             /// </summary>
             public static void Wait(double time = -1)
