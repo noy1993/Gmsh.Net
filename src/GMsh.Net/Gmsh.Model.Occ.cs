@@ -319,10 +319,11 @@ namespace GmshNet
                 /// If tag is positive, set the tag explicitly; otherwise a new tag is selected automatically.
                 /// Return the tag of the trimmed surface.
                 /// </summary>
-                public static void AddTrimmedSurface(int surfacetag, int[] wireTags, bool wire3D = false, int tag = -1)
+                public static int AddTrimmedSurface(int surfacetag, int[] wireTags, bool wire3D = false, int tag = -1)
                 {
-                    Gmsh_Warp.GmshModelOccAddTrimmedSurface(surfacetag, wireTags, wireTags.LongLength, Convert.ToInt32(wire3D), tag, ref Gmsh._staticreff);
+                    var index = Gmsh_Warp.GmshModelOccAddTrimmedSurface(surfacetag, wireTags, wireTags.LongLength, Convert.ToInt32(wire3D), tag, ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    return index;
                 }
 
                 /// <summary>

@@ -4009,7 +4009,7 @@ namespace Gmsh_warp
             }
         }
 
-        public static void GmshModelOccAddTrimmedSurface(int surfaceTag, int[] wireTags, long wireTags_n, int wire3D, int tag, ref int ierr)
+        public static int GmshModelOccAddTrimmedSurface(int surfaceTag, int[] wireTags, long wireTags_n, int wire3D, int tag, ref int ierr)
         {
             fixed (int* __wireTags0 = wireTags)
             {
@@ -4017,7 +4017,8 @@ namespace Gmsh_warp
                 fixed (int* __ierr3 = &ierr)
                 {
                     var __arg3 = __ierr3;
-                    __Internal.GmshModelOccAddTrimmedSurface(surfaceTag, __arg0, wireTags_n, wire3D, tag, __arg3);
+                    var __ret = __Internal.GmshModelOccAddTrimmedSurface(surfaceTag, __arg0, wireTags_n, wire3D, tag, __arg3);
+                    return __ret;
                 }
             }
         }
