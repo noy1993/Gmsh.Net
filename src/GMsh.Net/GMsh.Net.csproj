@@ -6,6 +6,8 @@
     <RootNamespace>GmshNet</RootNamespace>
     <Version>1.0.0.484</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <AssemblyVersion>1.484.0.1</AssemblyVersion>
+    <FileVersion>1.484.0.1</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
