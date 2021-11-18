@@ -1,4 +1,4 @@
-﻿using Gmsh_warp;
+using Gmsh_warp;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -137,7 +137,7 @@ namespace GmshNet
 
                 /// <summary>
                 /// Get the nodes classified on the entity of dimension `dim' and tag `tag'.
-                /// If `tag' < 0, get the nodes for all entities of dimension `dim'. If `dim'
+                /// If `tag' &lt; 0, get the nodes for all entities of dimension `dim'. If `dim'
                 /// and `tag' are negative, get all the nodes in the mesh. `nodeTags' contains
                 /// the node tags (their unique, strictly positive identification numbers).
                 /// `coord' is a vector of length 3 times the length of `nodeTags' that
@@ -294,7 +294,7 @@ namespace GmshNet
 
                 /// <summary>
                 /// Relocate the nodes classified on the entity of dimension `dim' and tag
-                /// `tag' using their parametric coordinates. If `tag' < 0, relocate the nodes
+                /// `tag' using their parametric coordinates. If `tag' &lt; 0, relocate the nodes
                 /// for all entities of dimension `dim'. If `dim' and `tag' are negative,
                 /// relocate all the nodes in the mesh.
                 /// </summary>
@@ -306,7 +306,7 @@ namespace GmshNet
 
                 /// <summary>
                 /// Get the elements classified on the entity of dimension `dim' and tag
-                /// `tag'. If `tag' < 0, get the elements for all entities of dimension `dim'.
+                /// `tag'. If `tag' &lt; 0, get the elements for all entities of dimension `dim'.
                 /// If `dim' and `tag' are negative, get all the elements in the mesh.
                 /// `elementTypes' contains the MSH types of the elements (e.g. `2' for 3-node
                 /// triangles: see `getElementProperties' to obtain the properties for a given
@@ -423,7 +423,7 @@ namespace GmshNet
 
                 /// <summary>
                 /// Get the types of elements in the entity of dimension `dim' and tag `tag'.
-                /// If `tag' < 0, get the types for all entities of dimension `dim'. If `dim'
+                /// If `tag' &lt; 0, get the types for all entities of dimension `dim'. If `dim'
                 /// and `tag' are negative, get all the types in the mesh.
                 /// </summary>
                 public static int[] GetElementTypes(int dim = -1, int tag = -1)
@@ -476,7 +476,7 @@ namespace GmshNet
 
                 /// <summary>
                 /// Get the elements of type `elementType' classified on the entity of tag
-                /// `tag'. If `tag' < 0, get the elements for all entities. `elementTags' is a
+                /// `tag'. If `tag' &lt; 0, get the elements for all entities. `elementTags' is a
                 /// vector containing the tags (unique, strictly positive identifiers) of the
                 /// elements of the corresponding type. `nodeTags' is a vector of length equal
                 /// to the number of elements of the given type times the number N of nodes
@@ -599,7 +599,7 @@ namespace GmshNet
                 /// Jxu=dx/du, Jyu=dy/du, etc. `determinants' contains for each element the
                 /// determinant of the Jacobian matrix at each evaluation point: [e1g1, e1g2,
                 /// ... e1gG, e2g1, ...]. `coord' contains for each element the x, y, z
-                /// coordinates of the evaluation points. If `tag' < 0, get the Jacobian data
+                /// coordinates of the evaluation points. If `tag' &lt; 0, get the Jacobian data
                 /// for all entities. If `numTasks' > 1, only compute and return the part of
                 /// the data indexed by `task'.
                 /// </summary>
@@ -789,18 +789,17 @@ namespace GmshNet
                 }
 
                 /// <summary>
-                /// Get the global edge identifier `edgeNum' for an input list of node pairs,
-                /// concatenated in the vector `edgeNodes'.  Warning: this is an experimental
-                /// feature and will probably change in a future release.
+                /// Get the global unique mesh edge identifiers edgeTags and orientations edgeOrientation 
+                /// for an input list of node tag pairs defining these edges, concatenated in the vector nodeTags.
                 /// </summary>
-                public static int[] GetEdgeNumber(int[] edgeNodes)
+                public static int[] GetEdges(int[] edgeNodes)
                 {
                     unsafe
                     {
                         int* edgeNum_ptr;
                         long edgeNum_n = 0;
 
-                        Gmsh_Warp.GmshModelMeshGetEdgeNumber(edgeNodes, edgeNodes.LongLength, &edgeNum_ptr, ref edgeNum_n, ref Gmsh._staticreff);
+                        Gmsh_Warp.GmshModelMeshGetGetEdges(edgeNodes, edgeNodes.LongLength, &edgeNum_ptr, ref edgeNum_n, ref Gmsh._staticreff);
 
                         var edgeNum = UnsafeHelp.ToIntArray(edgeNum_ptr, edgeNum_n);
                         Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
@@ -891,7 +890,7 @@ namespace GmshNet
                 /// the entity of tag `tag'. If `primary' is set, only the primary nodes of
                 /// the elements are taken into account for the barycenter calculation. If
                 /// `fast' is set, the function returns the sum of the primary node
-                /// coordinates (without normalizing by the number of nodes). If `tag' < 0,
+                /// coordinates (without normalizing by the number of nodes). If `tag' &lt; 0,
                 /// get the barycenters for all entities. If `numTasks' > 1, only compute and
                 /// return the part of the data indexed by `task'.
                 /// </summary>
@@ -936,10 +935,11 @@ namespace GmshNet
                 /// of the edges for all the elements: [e1a1n1, e1a1n2, e1a2n1, ...]. Data is
                 /// returned by element, with elements in the same order as in `getElements'
                 /// and `getElementsByType'. If `primary' is set, only the primary (begin/end)
-                /// nodes of the edges are returned. If `tag' < 0, get the edge nodes for all
+                /// nodes of the edges are returned. If `tag' &lt; 0, get the edge nodes for all
                 /// entities. If `numTasks' > 1, only compute and return the part of the data
-                /// indexed by `task'.
+                /// indexed by `task'
                 /// </summary>
+
                 public static long[] GetElementEdgeNodes(int elementType, int tag = -1, bool primary = false, long task = 0, long numTasks = 1)
                 {
                     unsafe
@@ -963,7 +963,7 @@ namespace GmshNet
                 /// for all elements: [e1f1n1, ..., e1f1nFaceType, e1f2n1, ...]. Data is
                 /// returned by element, with elements in the same order as in `getElements'
                 /// and `getElementsByType'. If `primary' is set, only the primary (corner)
-                /// nodes of the faces are returned. If `tag' < 0, get the face nodes for all
+                /// nodes of the faces are returned. If `tag' &lt; 0, get the face nodes for all
                 /// entities. If `numTasks' > 1, only compute and return the part of the data
                 /// indexed by `task'.
                 /// </summary>
@@ -1256,7 +1256,7 @@ namespace GmshNet
 
                 /// <summary>
                 /// Split (into two triangles) all quadrangles in surface `tag' whose quality
-                /// is lower than `quality'. If `tag' < 0, split quadrangles in all surfaces.
+                /// is lower than `quality'. If `tag' &lt; 0, split quadrangles in all surfaces.
                 /// </summary>
                 public static void SplitQuadrangles(double quality = 1, int tag = -1)
                 {
@@ -1271,11 +1271,12 @@ namespace GmshNet
                 /// boundary if the surface is open. If `forReparametrization' is set, create
                 /// edges and surfaces that can be reparametrized using a single map. If
                 /// `curveAngle' is less than Pi, also force curves to be split according to
-                /// `curveAngle'.
+                /// `curveAngle'. 
+                /// If exportDiscrete is set, clear any built-in CAD kernel entities and export the discrete entities in the built-in CAD kernel.
                 /// </summary>
-                public static void ClassifySurfaces(double angle, bool boundary, bool forReparametrization, double curveAngle)
+                public static void ClassifySurfaces(double angle, bool boundary, bool forReparametrization, double curveAngle, bool exportDiscrete = true)
                 {
-                    Gmsh_Warp.GmshModelMeshClassifySurfaces(angle, Convert.ToInt32(boundary), Convert.ToInt32(forReparametrization), curveAngle, ref Gmsh._staticreff);
+                    Gmsh_Warp.GmshModelMeshClassifySurfaces(angle, Convert.ToInt32(boundary), Convert.ToInt32(forReparametrization), curveAngle, Convert.ToInt32(exportDiscrete), ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                 }
 

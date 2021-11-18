@@ -36,7 +36,7 @@ namespace GmshNet
             var array = new ValueTuple<int, int>[list.Length][];
             for (int i = 0; i < list.Length; i++)
             {
-                var ps = new ValueTuple<int, int>[list.Length / 2];
+                var ps = new ValueTuple<int, int>[list[i].Length / 2];
                 for (int j = 0; j < list[i].Length / 2; j++)
                 {
                     ps[j].Item1 = list[i][j * 2];

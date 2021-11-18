@@ -1,4 +1,4 @@
-﻿using Gmsh_warp;
+using Gmsh_warp;
 using System;
 using System.Drawing;
 using System.Reflection;
@@ -169,7 +169,7 @@ namespace GmshNet
             /// <summary>
             /// Add a physical group of dimension `dim', grouping the model entities with
             /// tags `tags'. Return the tag of the physical group, equal to `tag' if `tag'
-            /// is positive, or a new tag if `tag' < 0.
+            /// is positive, or a new tag if `tag' &lt; 0.
             /// </summary>
             public static int AddPhysicalGroup(int dim, int[] tags, int tag = -1)
             {
@@ -271,7 +271,7 @@ namespace GmshNet
             /// <summary>
             /// Add a discrete model entity (defined by a mesh) of dimension `dim' in the
             /// current model. Return the tag of the new discrete entity, equal to `tag' if
-            /// `tag' is positive, or a new tag if `tag' < 0. `boundary' specifies the tags
+            /// `tag' is positive, or a new tag if `tag' &lt; 0. `boundary' specifies the tags
             /// of the entities on the boundary of the discrete entity, if any. Specifying
             /// `boundary' allows Gmsh to construct the topology of the overall model.
             /// </summary>

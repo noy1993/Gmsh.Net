@@ -7,7 +7,7 @@ namespace Gmsh_warp
     {
         internal partial struct __Internal
         {
-            private const string dllname = "gmsh-4.7";
+            private const string dllname = "gmsh-4.8.dll";
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
@@ -491,8 +491,8 @@ namespace Gmsh_warp
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
-                EntryPoint = "gmshModelMeshGetEdgeNumber")]
-            internal static extern void GmshModelMeshGetEdgeNumber(int* edgeNodes, long edgeNodes_n, int** edgeNum, long* edgeNum_n, int* ierr);
+                EntryPoint = "gmshModelMeshGetEdges")]
+            internal static extern void GmshModelMeshGetGetEdges(int* edgeNodes, long edgeNodes_n, int** edgeNum, long* edgeNum_n, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
@@ -652,7 +652,7 @@ namespace Gmsh_warp
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshModelMeshClassifySurfaces")]
-            internal static extern void GmshModelMeshClassifySurfaces(double angle, int boundary, int forReparametrization, double curveAngle, int* ierr);
+            internal static extern void GmshModelMeshClassifySurfaces(double angle, int boundary, int forReparametrization, double curveAngle, int exportDiscrete, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
@@ -748,6 +748,11 @@ namespace Gmsh_warp
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshModelGeoAddBezier")]
             internal static extern int GmshModelGeoAddBezier(int* pointTags, long pointTags_n, int tag, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelOccAddTrimmedSurface")]
+            internal static extern int GmshModelOccAddTrimmedSurface(int surfaceTag, int* wireTags, long wireTags_n, int wire3D, int tag, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
@@ -997,12 +1002,16 @@ namespace Gmsh_warp
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshModelOccAddBSplineSurface")]
-            internal static extern int GmshModelOccAddBSplineSurface(int* pointTags, long pointTags_n, int numPointsU, int tag, int degreeU, int degreeV, double* weights, long weights_n, double* knotsU, long knotsU_n, double* knotsV, long knotsV_n, int* multiplicitiesU, long multiplicitiesU_n, int* multiplicitiesV, long multiplicitiesV_n, int* ierr);
+            internal static extern int GmshModelOccAddBSplineSurface(int* pointTags, long pointTags_n, int numPointsU, int tag, int degreeU, int degreeV, 
+                                                                    double* weights, long weights_n, double* knotsU, long knotsU_n, double* knotsV, long knotsV_n, 
+                                                                    int* multiplicitiesU, long multiplicitiesU_n, int* multiplicitiesV, long multiplicitiesV_n,
+                                                                    int* wireTags, long wireTags_n, int wire3D, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshModelOccAddBezierSurface")]
-            internal static extern int GmshModelOccAddBezierSurface(int* pointTags, long pointTags_n, int numPointsU, int tag, int* ierr);
+            internal static extern int GmshModelOccAddBezierSurface(int* pointTags, long pointTags_n, int numPointsU, int tag, int* wireTags,
+                                                                    long wireTags_n, int wire3D, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
@@ -1067,7 +1076,7 @@ namespace Gmsh_warp
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshModelOccAddPipe")]
-            internal static extern void GmshModelOccAddPipe(int* dimTags, long dimTags_n, int wireTag, int** outDimTags, long* outDimTags_n, int* ierr);
+            internal static extern void GmshModelOccAddPipe(int* dimTags, long dimTags_n, int wireTag, int** outDimTags, long* outDimTags_n, [MarshalAs(UnmanagedType.LPStr)] string trihedron, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
@@ -1282,7 +1291,7 @@ namespace Gmsh_warp
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshViewProbe")]
-            internal static extern void GmshViewProbe(int tag, double x, double y, double z, double** value, long* value_n, int step, int numComp, int gradient, double tolerance, double* xElemCoord, long xElemCoord_n, double* yElemCoord, long yElemCoord_n, double* zElemCoord, long zElemCoord_n, int* ierr);
+            internal static extern void GmshViewProbe(int tag, double x, double y, double z, double** value, long* value_n, int step, int numComp, int gradient, double tolerance, double* xElemCoord, long xElemCoord_n, double* yElemCoord, long yElemCoord_n, double* zElemCoord, long zElemCoord_n, int dim, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
@@ -2807,7 +2816,7 @@ namespace Gmsh_warp
             }
         }
 
-        public static void GmshModelMeshGetEdgeNumber(int[] edgeNodes, long edgeNodes_n, int** edgeNum, ref long edgeNum_n, ref int ierr)
+        public static void GmshModelMeshGetGetEdges(int[] edgeNodes, long edgeNodes_n, int** edgeNum, ref long edgeNum_n, ref int ierr)
         {
             fixed (int* __edgeNodes0 = edgeNodes)
             {
@@ -2818,7 +2827,7 @@ namespace Gmsh_warp
                     fixed (int* __ierr4 = &ierr)
                     {
                         var __arg4 = __ierr4;
-                        __Internal.GmshModelMeshGetEdgeNumber(__arg0, edgeNodes_n, edgeNum, __arg3, __arg4);
+                        __Internal.GmshModelMeshGetGetEdges(__arg0, edgeNodes_n, edgeNum, __arg3, __arg4);
                     }
                 }
             }
@@ -3220,12 +3229,12 @@ namespace Gmsh_warp
             }
         }
 
-        public static void GmshModelMeshClassifySurfaces(double angle, int boundary, int forReparametrization, double curveAngle, ref int ierr)
+        public static void GmshModelMeshClassifySurfaces(double angle, int boundary, int forReparametrization, double curveAngle, int exportDiscrete, ref int ierr)
         {
             fixed (int* __ierr4 = &ierr)
             {
                 var __arg4 = __ierr4;
-                __Internal.GmshModelMeshClassifySurfaces(angle, boundary, forReparametrization, curveAngle, __arg4);
+                __Internal.GmshModelMeshClassifySurfaces(angle, boundary, forReparametrization, curveAngle, exportDiscrete,__arg4);
             }
         }
 
@@ -4000,6 +4009,20 @@ namespace Gmsh_warp
             }
         }
 
+        public static int GmshModelOccAddTrimmedSurface(int surfaceTag, int[] wireTags, long wireTags_n, int wire3D, int tag, ref int ierr)
+        {
+            fixed (int* __wireTags0 = wireTags)
+            {
+                var __arg0 = __wireTags0;
+                fixed (int* __ierr3 = &ierr)
+                {
+                    var __arg3 = __ierr3;
+                    var __ret = __Internal.GmshModelOccAddTrimmedSurface(surfaceTag, __arg0, wireTags_n, wire3D, tag, __arg3);
+                    return __ret;
+                }
+            }
+        }
+
         public static int GmshModelOccAddWire(int[] curveTags, long curveTags_n, int tag, int checkClosed, ref int ierr)
         {
             fixed (int* __curveTags0 = curveTags)
@@ -4096,7 +4119,10 @@ namespace Gmsh_warp
             }
         }
 
-        public static int GmshModelOccAddBSplineSurface(int[] pointTags, long pointTags_n, int numPointsU, int tag, int degreeU, int degreeV, double[] weights, long weights_n, double[] knotsU, long knotsU_n, double[] knotsV, long knotsV_n, int[] multiplicitiesU, long multiplicitiesU_n, int[] multiplicitiesV, long multiplicitiesV_n, ref int ierr)
+        public static int GmshModelOccAddBSplineSurface(int[] pointTags, long pointTags_n, int numPointsU, int tag, int degreeU, int degreeV, double[] weights, 
+                                                        long weights_n, double[] knotsU, long knotsU_n, double[] knotsV, long knotsV_n, 
+                                                        int[] multiplicitiesU, long multiplicitiesU_n, int[] multiplicitiesV, long multiplicitiesV_n,
+                                                        int[] wireTags, long wireTags_n, int wire3D, ref int ierr)
         {
             fixed (int* __pointTags0 = pointTags)
             {
@@ -4116,11 +4142,15 @@ namespace Gmsh_warp
                                 fixed (int* __multiplicitiesV14 = multiplicitiesV)
                                 {
                                     var __arg14 = __multiplicitiesV14;
-                                    fixed (int* __ierr16 = &ierr)
+                                    fixed (int* __wireTags0 = wireTags)
                                     {
-                                        var __arg16 = __ierr16;
-                                        var __ret = __Internal.GmshModelOccAddBSplineSurface(__arg0, pointTags_n, numPointsU, tag, degreeU, degreeV, __arg6, weights_n, __arg8, knotsU_n, __arg10, knotsV_n, __arg12, multiplicitiesU_n, __arg14, multiplicitiesV_n, __arg16);
-                                        return __ret;
+                                        var __arg16 = __wireTags0;
+                                        fixed (int* __ierr19 = &ierr)
+                                        {
+                                            var __arg19 = __ierr19;
+                                            var __ret = __Internal.GmshModelOccAddBSplineSurface(__arg0, pointTags_n, numPointsU, tag, degreeU, degreeV, __arg6, weights_n, __arg8, knotsU_n, __arg10, knotsV_n, __arg12, multiplicitiesU_n, __arg14, multiplicitiesV_n, __arg16, wireTags_n, wire3D, __arg19);
+                                            return __ret;
+                                        }
                                     }
                                 }
                             }
@@ -4130,16 +4160,21 @@ namespace Gmsh_warp
             }
         }
 
-        public static int GmshModelOccAddBezierSurface(int[] pointTags, long pointTags_n, int numPointsU, int tag, ref int ierr)
+        public static int GmshModelOccAddBezierSurface(int[] pointTags, long pointTags_n, int numPointsU, int tag, int[] wireTags,
+                                                                      long wireTags_n, int wire3D, ref int ierr)
         {
             fixed (int* __pointTags0 = pointTags)
             {
                 var __arg0 = __pointTags0;
-                fixed (int* __ierr4 = &ierr)
+                fixed (int* __wireTags0 = wireTags)
                 {
-                    var __arg4 = __ierr4;
-                    var __ret = __Internal.GmshModelOccAddBezierSurface(__arg0, pointTags_n, numPointsU, tag, __arg4);
-                    return __ret;
+                    var __arg4 = __wireTags0;
+                    fixed (int* __ierr7 = &ierr)
+                    {
+                        var __arg7 = __ierr7;
+                        var __ret = __Internal.GmshModelOccAddBezierSurface(__arg0, pointTags_n, numPointsU, tag,  __arg4, wireTags_n, wire3D, __arg7);
+                        return __ret;
+                    }
                 }
             }
         }
@@ -4316,7 +4351,7 @@ namespace Gmsh_warp
             }
         }
 
-        public static void GmshModelOccAddPipe(int[] dimTags, long dimTags_n, int wireTag, int** outDimTags, ref long outDimTags_n, ref int ierr)
+        public static void GmshModelOccAddPipe(int[] dimTags, long dimTags_n, int wireTag, int** outDimTags, ref long outDimTags_n, string trihedron, ref int ierr)
         {
             fixed (int* __dimTags0 = dimTags)
             {
@@ -4327,7 +4362,7 @@ namespace Gmsh_warp
                     fixed (int* __ierr5 = &ierr)
                     {
                         var __arg5 = __ierr5;
-                        __Internal.GmshModelOccAddPipe(__arg0, dimTags_n, wireTag, outDimTags, __arg4, __arg5);
+                        __Internal.GmshModelOccAddPipe(__arg0, dimTags_n, wireTag, outDimTags, __arg4, trihedron, __arg5);
                     }
                 }
             }
@@ -4995,7 +5030,7 @@ namespace Gmsh_warp
             }
         }
 
-        public static void GmshViewProbe(int tag, double x, double y, double z, double** value, ref long value_n, int step, int numComp, int gradient, double tolerance, double[] xElemCoord, long xElemCoord_n, double[] yElemCoord, long yElemCoord_n, double[] zElemCoord, long zElemCoord_n, ref int ierr)
+        public static void GmshViewProbe(int tag, double x, double y, double z, double** value, ref long value_n, int step, int numComp, int gradient, double tolerance, double[] xElemCoord, long xElemCoord_n, double[] yElemCoord, long yElemCoord_n, double[] zElemCoord, long zElemCoord_n, int dim, ref int ierr)
         {
             fixed (long* __value_n5 = &value_n)
             {
@@ -5009,10 +5044,10 @@ namespace Gmsh_warp
                         fixed (double* __zElemCoord14 = zElemCoord)
                         {
                             var __arg14 = __zElemCoord14;
-                            fixed (int* __ierr16 = &ierr)
+                            fixed (int* __ierr17 = &ierr)
                             {
-                                var __arg16 = __ierr16;
-                                __Internal.GmshViewProbe(tag, x, y, z, value, __arg5, step, numComp, gradient, tolerance, __arg10, xElemCoord_n, __arg12, yElemCoord_n, __arg14, zElemCoord_n, __arg16);
+                                var __arg17 = __ierr17;
+                                __Internal.GmshViewProbe(tag, x, y, z, value, __arg5, step, numComp, gradient, tolerance, __arg10, xElemCoord_n, __arg12, yElemCoord_n, __arg14, zElemCoord_n, dim, __arg17);
                             }
                         }
                     }

@@ -15,9 +15,9 @@ namespace GmshNet
         public static class View
         {
             /// <summary>
-            // Add a new post-processing view, with name `name'. If `tag' is positive use
-            // it (and remove the view with that tag if it already exists), otherwise
-            // associate a new tag. Return the view tag.
+            /// Add a new post-processing view, with name `name'. If `tag' is positive use
+            /// it (and remove the view with that tag if it already exists), otherwise
+            /// associate a new tag. Return the view tag.
             /// </summary>
             public static int Add(string name, int tag = -1)
             {
@@ -261,8 +261,9 @@ namespace GmshNet
             /// unit cube) of `tolerance' if `tolerance' is not zero. Return the result from
             /// the element described by its coordinates if `xElementCoord', `yElementCoord'
             /// and `zElementCoord' are provided.
+            /// If dim is >= 0, return only elements of the specified dimension.
             /// </summary>
-            public static double[] Probe(int tag, double x, double y, double z, int step = -1, int numComp = -1, bool gradient = false, double tolerance = 0, double[] xElemCoord = default, double[] yElemCoord = default, double[] zElemCoord = default)
+            public static double[] Probe(int tag, double x, double y, double z, int step = -1, int numComp = -1, bool gradient = false, double tolerance = 0, double[] xElemCoord = default, double[] yElemCoord = default, double[] zElemCoord = default, int dim = -1)
             {
                 unsafe
                 {
@@ -271,7 +272,7 @@ namespace GmshNet
                     if (xElemCoord == default) xElemCoord = new double[0];
                     if (yElemCoord == default) yElemCoord = new double[0];
                     if (zElemCoord == default) zElemCoord = new double[0];
-                    Gmsh_Warp.GmshViewProbe(tag, x, y, z, &value_ptr, ref value_n, step, numComp, Convert.ToInt32(gradient), tolerance, xElemCoord, xElemCoord.LongLength, yElemCoord, yElemCoord.LongLength, zElemCoord, zElemCoord.LongLength, ref Gmsh._staticreff);
+                    Gmsh_Warp.GmshViewProbe(tag, x, y, z, &value_ptr, ref value_n, step, numComp, Convert.ToInt32(gradient), tolerance, xElemCoord, xElemCoord.LongLength, yElemCoord, yElemCoord.LongLength, zElemCoord, zElemCoord.LongLength, dim, ref Gmsh._staticreff);
                     var value = UnsafeHelp.ToDoubleArray(value_ptr, value_n);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                     return value;

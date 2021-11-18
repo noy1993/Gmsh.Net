@@ -264,16 +264,22 @@ namespace GmshNet
                 /// Pu1v2, ...]. If `weights', `knotsU', `knotsV', `multiplicitiesU' or
                 /// `multiplicitiesV' are not provided, default parameters are computed
                 /// automatically. If `tag' is positive, set the tag explicitly; otherwise a
-                /// new tag is selected automatically. Return the tag of the b-spline surface.
+                /// new tag is selected automatically. 
+                /// If wireTags is provided, trim the b-spline patch using the provided wires: the first wire defines the external contour, the others define holes.
+                /// If wire3D is set, consider wire curves as 3D curves and project them on the b-spline surface;
+                /// otherwise consider the wire curves as defined in the parametric space of the surface. 
+                /// Return the tag of the b-spline surface..
                 /// </summary>
                 public static int AddBSplineSurface(int[] pointTags, int numPointsU, int tag = -1, int degreeU = 3, int degreeV = 3,
-                    double[] weights = default, double[] knotsU = default, double[] knotsV = default, int[] multiplicitiesU = default, int[] multiplicitiesV = default)
+                    double[] weights = default, double[] knotsU = default, double[] knotsV = default, int[] multiplicitiesU = default, int[] multiplicitiesV = default, 
+                    int[] wireTags = default, bool wire3D = false)
                 {
                     if (weights == default) weights = new double[0];
                     if (knotsU == default) knotsU = new double[0];
                     if (knotsV == default) knotsV = new double[0];
                     if (multiplicitiesU == default) multiplicitiesU = new int[0];
                     if (multiplicitiesV == default) multiplicitiesV = new int[0];
+                    if (wireTags == default) wireTags = new int[0];
                     var index = Gmsh_Warp.GmshModelOccAddBSplineSurface(
                         pointTags, pointTags.LongLength,
                         numPointsU, tag, degreeU, degreeV,
@@ -282,6 +288,8 @@ namespace GmshNet
                         knotsV, knotsV.LongLength,
                         multiplicitiesU, multiplicitiesU.LongLength,
                         multiplicitiesV, multiplicitiesV.LongLength,
+                        wireTags, wireTags.LongLength,
+                        Convert.ToInt32(wire3D),
                         ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                     return index;
@@ -293,9 +301,27 @@ namespace GmshNet
                 /// set the tag explicitly; otherwise a new tag is selected automatically.
                 /// Return the tag of the b-spline surface.
                 /// </summary>
-                public static int AddBezierSurface(int[] pointTags, int numPointsU, int tag = -1)
+                public static int AddBezierSurface(int[] pointTags, int numPointsU, int tag = -1, int[] wireTags = default, bool wire3D = false)
                 {
-                    var index = Gmsh_Warp.GmshModelOccAddBezierSurface(pointTags, pointTags.LongLength, numPointsU, tag, ref Gmsh._staticreff);
+                    if (wireTags == default) wireTags = new int[0];
+
+                    var index = Gmsh_Warp.GmshModelOccAddBezierSurface(pointTags, pointTags.LongLength, numPointsU, tag, wireTags, 
+                                                                      wireTags.LongLength, Convert.ToInt32(wire3D), ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    return index;
+                }
+
+                /// <summary>                
+                /// Trim the surface surfaceTag with the wires wireTags, replacing any existing trimming curves. 
+                /// The first wire defines the external contour, the others define holes. 
+                /// If wire3D is set, consider wire curves as 3D curves and project them on the surface; 
+                /// otherwise consider the wire curves as defined in the parametric space of the surface.
+                /// If tag is positive, set the tag explicitly; otherwise a new tag is selected automatically.
+                /// Return the tag of the trimmed surface.
+                /// </summary>
+                public static int AddTrimmedSurface(int surfacetag, int[] wireTags, bool wire3D = false, int tag = -1)
+                {
+                    var index = Gmsh_Warp.GmshModelOccAddTrimmedSurface(surfacetag, wireTags, wireTags.LongLength, Convert.ToInt32(wire3D), tag, ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                     return index;
                 }
@@ -510,10 +536,13 @@ namespace GmshNet
                 }
 
                 /// <summary>
-                /// Add a pipe by extruding the entities `dimTags' along the wire `wireTag'.
+                /// Add a pipe in the OpenCASCADE CAD representation, by extruding the entities dimTags along the wire wireTag. 
+                /// The type of sweep can be specified with trihedron (possible values: "DiscreteTrihedron", "CorrectedFrenet", 
+                /// "Fixed", "Frenet", "ConstantNormal", "Darboux", "GuideAC", "GuidePlan", "GuideACWithContact", "GuidePlanWithContact").
+                /// If trihedron is not provided, "DiscreteTrihedron" is assumed.
                 /// Return the pipe in `outDimTags'.
                 /// </summary>
-                public static ValueTuple<int, int>[] AddPipe(ValueTuple<int, int>[] dimTags, int wireTag)
+                public static ValueTuple<int, int>[] AddPipe(ValueTuple<int, int>[] dimTags, int wireTag, string trihedron = "")
                 {
                     unsafe
                     {
@@ -522,7 +551,7 @@ namespace GmshNet
                         int* outDimTags_ptr;
                         long outDimTags_n = 0;
                         Gmsh_Warp.GmshModelOccAddPipe(dimTags_array, dimTags_array.LongLength, wireTag,
-                            &outDimTags_ptr, ref outDimTags_n, ref Gmsh._staticreff);
+                            &outDimTags_ptr, ref outDimTags_n, trihedron, ref Gmsh._staticreff);
                         var outDimTags_array = UnsafeHelp.ToIntArray(outDimTags_ptr, outDimTags_n);
                         var outDimTags = outDimTags_array.ToIntPair();
 
