@@ -144,6 +144,42 @@ namespace GmshNet
                     return index;
                 }
             }
+
+            /// <summary>
+            /// Set a status message in the current window. If graphics is set, display the message inside the graphic window instead of the status bar.
+            /// </summary>
+            public static void SetStatusMessage(string message, bool graphics = false)
+            {
+                Gmsh_Warp.GmshFltkSetStatusMessage(message, Convert.ToInt32(graphics), ref Gmsh._staticreff);
+                Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+            }
+
+            /// <summary>
+            /// Show context window for the entity of dimension dim and tag tag.
+            /// </summary>
+            public static void ShowContextWindow(int dim, int tag)
+			{
+                Gmsh_Warp.GmshFltkShowContextWindow(dim, tag, ref Gmsh._staticreff);
+                Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+            }
+
+            /// <summary>
+            /// Open the name item in the menu tree.
+            /// </summary>
+            public static void OpenTreeItem(string name)
+            {
+                Gmsh_Warp.GmshFltkOpenTreeItem(name, ref Gmsh._staticreff);
+                Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+            }
+
+            /// <summary>
+            /// Open the name item in the menu tree.
+            /// </summary>
+            public static void CloseTreeItem(string name)
+            {
+                Gmsh_Warp.GmshFltkCloseTreeItem(name, ref Gmsh._staticreff);
+                Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+            }
         }
     }
 }

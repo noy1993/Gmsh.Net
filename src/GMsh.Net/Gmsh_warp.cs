@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Security;
 
 namespace Gmsh_warp
@@ -103,6 +103,16 @@ namespace Gmsh_warp
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshModelSetCurrent")]
             internal static extern void GmshModelSetCurrent([MarshalAs(UnmanagedType.LPStr)] string name, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelGetFileName")]
+            internal static extern void GmshModelGetFileName(string name);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelSetFileName")]
+            internal static extern void GmshModelSetFileName(string name);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
@@ -216,6 +226,11 @@ namespace Gmsh_warp
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelGetSecondDerivative")]
+            internal static extern void GmshModelGetSecondDerivative(int dim, int tag, double* parametricCoord, long parametricCoord_n, double** derivatives, long* derivatives_n, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshModelGetDerivative")]
             internal static extern void GmshModelGetDerivative(int dim, int tag, double* parametricCoord, long parametricCoord_n, double** derivatives, long* derivatives_n, int* ierr);
 
@@ -248,6 +263,11 @@ namespace Gmsh_warp
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshModelIsInside")]
             internal static extern int GmshModelIsInside(int dim, int tag, double* parametricCoord, long parametricCoord_n, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelGetAdjacencies")]
+            internal static extern int GmshModelGetAdjacencies(int dim, int tag, int* upward, long upward_n, int* downward, long downward_n);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
@@ -492,7 +512,12 @@ namespace Gmsh_warp
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshModelMeshGetEdges")]
-            internal static extern void GmshModelMeshGetGetEdges(int* edgeNodes, long edgeNodes_n, int** edgeNum, long* edgeNum_n, int* ierr);
+            internal static extern void GmshModelMeshGetEdges(int* edgeNodes, long edgeNodes_n, int** edgeNum, long* edgeNum_n, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelMeshGetFaces")]
+            internal static extern void GmshModelMeshGetFaces(int faceType, int* nodeTags, long nodeTags_n, int** faceTags, long* faceTags_n, int** faceOrientations, long* faceOrientations_n, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
@@ -716,6 +741,41 @@ namespace Gmsh_warp
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelMeshGetEdges")]
+            internal static extern void GmshModelMeshGetEdges(long* nodeTags, long nodeTags_n, long* edgeTags, long edgeTags_n, int* edgeOrientations, long edgeOrientations_n, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelMeshCreateEdges")]
+            internal static extern void GmshModelMeshCreateEdges(int* nodeTags, long nodeTags_n, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelMeshCreateFaces")]
+            internal static extern void GmshModelMeshCreateFaces(int* nodeTags, long nodeTags_n, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelMeshRemoveConstraints")]
+            internal static extern void GmshModelMeshRemoveConstraints(int* nodeTags, long nodeTags_n, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelMeshRemoveConstraints")]
+            internal static extern void GmshModelMeshGetEmbedded(int dim, int tag, int** nodeTags, long* nodeTags_n, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelMeshTriangulate")]
+            internal static extern void GmshModelMeshTriangulate(double* coord, long coord_n, long** dimTags, ref long dimTags_n, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelMeshTetrahedralize")]
+            internal static extern void GmshModelMeshTetrahedralize(double* coord, long coord_n, long** dimTags, ref long dimTags_n, int* ierr);            
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshModelGeoAddPoint")]
             internal static extern int GmshModelGeoAddPoint(double x, double y, double z, double meshSize, int tag, int* ierr);
 
@@ -773,6 +833,11 @@ namespace Gmsh_warp
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshModelGeoAddCurveLoop")]
             internal static extern int GmshModelGeoAddCurveLoop(int* curveTags, long curveTags_n, int tag, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshModelGeoAddCurveLoops")]
+            internal static extern int GmshModelGeoAddCurveLoops(int* curveTags, long curveTags_n, int** tags, long* tags_n, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
@@ -1375,6 +1440,26 @@ namespace Gmsh_warp
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshFltkSetStatusMessage")]
+            internal static extern int GmshFltkSetStatusMessage(string message, int graphics, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshFltkShowContextWindow")]
+            internal static extern int GmshFltkShowContextWindow(int dim, int tag, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshFltkOpenTreeItem")]
+            internal static extern int GmshFltkOpenTreeItem(string name, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshFltkCloseTreeItem")]
+            internal static extern int GmshFltkCloseTreeItem(string name, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshOnelabSet")]
             internal static extern void GmshOnelabSet([MarshalAs(UnmanagedType.LPStr)] string data, [MarshalAs(UnmanagedType.LPStr)] string format, int* ierr);
 
@@ -1412,6 +1497,11 @@ namespace Gmsh_warp
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "gmshOnelabRun")]
             internal static extern void GmshOnelabRun([MarshalAs(UnmanagedType.LPStr)] string name, [MarshalAs(UnmanagedType.LPStr)] string command, int* ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint = "gmshOnelabGetNames")]
+            internal static extern void GmshOnelabGetNames([MarshalAs(UnmanagedType.LPStr)] string search, byte*** names, long* names_n, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(dllname, CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
@@ -1635,6 +1725,16 @@ namespace Gmsh_warp
                 var __arg1 = __ierr1;
                 __Internal.GmshModelSetCurrent(name, __arg1);
             }
+        }
+
+        public static void GmshModelGetFileName(ref string fileName)
+		{
+            __Internal.GmshModelGetFileName(fileName);
+		}
+
+        public static void GmshModelSetFileName(string fileName)
+        {
+            __Internal.GmshModelSetFileName(fileName);
         }
 
         public static void GmshModelGetEntities(int** dimTags, ref long dimTags_n, int dim, ref int ierr)
@@ -1943,6 +2043,23 @@ namespace Gmsh_warp
             }
         }
 
+        public static void GmshModelGetSecondDerivative(int dim, int tag, double[] parametricCoord, long parametricCoord_n, double** derivatives, ref long derivatives_n, ref int ierr)
+        {
+            fixed (double* __parametricCoord2 = parametricCoord)
+            {
+                var __arg2 = __parametricCoord2;
+                fixed (long* __derivatives_n5 = &derivatives_n)
+                {
+                    var __arg5 = __derivatives_n5;
+                    fixed (int* __ierr6 = &ierr)
+                    {
+                        var __arg6 = __ierr6;
+                        __Internal.GmshModelGetSecondDerivative(dim, tag, __arg2, parametricCoord_n, derivatives, __arg5, __arg6);
+                    }
+                }
+            }
+        }
+
         public static void GmshModelGetCurvature(int dim, int tag, double[] parametricCoord, long parametricCoord_n, double** curvatures, ref long curvatures_n, ref int ierr)
         {
             fixed (double* __parametricCoord2 = parametricCoord)
@@ -2053,6 +2170,20 @@ namespace Gmsh_warp
                 }
             }
         }
+
+        public static void GmshModelGetAdjacencies(int dim, int tag, int[] upward, long upward_n, int[] downward, long downward_n)
+		{
+            fixed(int* __upward2 = upward)
+			{
+                var __arg3 = __upward2;
+                fixed(int* __downward = downward)
+				{
+                    var __arg5 = __downward;
+                    __Internal.GmshModelGetAdjacencies(dim, tag, __arg3, upward_n, __arg5, downward_n);
+
+                }
+			}
+		}
 
         public static void GmshModelGetClosestPoint(int dim, int tag, double[] coord, long coord_n, double** closestCoord, ref long closestCoord_n, double** parametricCoord, ref long parametricCoord_n, ref int ierr)
         {
@@ -2816,7 +2947,7 @@ namespace Gmsh_warp
             }
         }
 
-        public static void GmshModelMeshGetGetEdges(int[] edgeNodes, long edgeNodes_n, int** edgeNum, ref long edgeNum_n, ref int ierr)
+        public static void GmshModelMeshGetEdges(int[] edgeNodes, long edgeNodes_n, int** edgeNum, ref long edgeNum_n, ref int ierr)
         {
             fixed (int* __edgeNodes0 = edgeNodes)
             {
@@ -2827,7 +2958,28 @@ namespace Gmsh_warp
                     fixed (int* __ierr4 = &ierr)
                     {
                         var __arg4 = __ierr4;
-                        __Internal.GmshModelMeshGetGetEdges(__arg0, edgeNodes_n, edgeNum, __arg3, __arg4);
+                        __Internal.GmshModelMeshGetEdges(__arg0, edgeNodes_n, edgeNum, __arg3, __arg4);
+                    }
+                }
+            }
+        }
+
+        public static void GmshModelMeshGetGetFaces(int faceType, int[] nodeTags, long nodeTags_n, int** faceTags, ref long faceTags_n, int** faceOrientations, ref long faceOrientations_n, ref int ierr)
+        {
+            fixed (int* __nodeTags_n1 = nodeTags)
+            {
+                var __arg1 = __nodeTags_n1;
+                fixed (long* __edgeNum_n3 = &faceTags_n)
+                {
+                    var __arg3 = __edgeNum_n3;
+                    fixed (long* __faceOrientations_n5 = &faceOrientations_n)
+                    {
+                        var __arg5 = __faceOrientations_n5;
+                        fixed (int* __ierr6 = &ierr)
+                        {
+                            var __arg6 = __ierr6;
+                            __Internal.GmshModelMeshGetFaces(faceType, __arg1, nodeTags_n, faceTags, __arg3, faceOrientations, __arg5, __arg6);
+                        }
                     }
                 }
             }
@@ -3383,6 +3535,86 @@ namespace Gmsh_warp
             }
         }
 
+        public static void GmshModelMeshCreateEdges(int[] dimTags, long dimTags_n, ref int ierr)
+        {
+            fixed (int* __dimTags0 = dimTags)
+            {
+                var __arg0 = __dimTags0;
+                fixed (int* __ierr2 = &ierr)
+                {
+                    var __arg2 = __ierr2;
+                    __Internal.GmshModelMeshCreateEdges(__arg0, dimTags_n, __arg2);
+                }
+            }
+        }
+
+        public static void GmshModelMeshCreateFaces(int[] dimTags, long dimTags_n, ref int ierr)
+        {
+            fixed (int* __dimTags0 = dimTags)
+            {
+                var __arg0 = __dimTags0;
+                fixed (int* __ierr2 = &ierr)
+                {
+                    var __arg2 = __ierr2;
+                    __Internal.GmshModelMeshCreateFaces(__arg0, dimTags_n, __arg2);
+                }
+            }
+        }
+
+        public static void GmshModelMeshRemoveConstraints(int[] dimTags, long dimTags_n, ref int ierr)
+        {
+            fixed (int* __dimTags0 = dimTags)
+            {
+                var __arg0 = __dimTags0;
+                fixed (int* __ierr2 = &ierr)
+                {
+                    var __arg2 = __ierr2;
+                    __Internal.GmshModelMeshRemoveConstraints(__arg0, dimTags_n, __arg2);
+                }
+            }
+        }
+
+        public static void GmshModelMeshGetEmbedded(int dim, int tag, int** dimTags, ref long dimTags_n, ref int ierr)
+        {
+            fixed (long* __dimTags0 = &dimTags_n)
+            {
+                var __arg0 = __dimTags0;
+                fixed (int* __ierr2 = &ierr)
+                {
+                    var __arg2 = __ierr2;
+                    __Internal.GmshModelMeshGetEmbedded(dim, tag, dimTags, __arg0, __arg2);
+                }
+            }
+        }
+
+        public static void GmshModelMeshTriangulate(double[] coord, long coord_n, long** dimTags, ref long dimTags_n, ref int ierr)
+        {
+            fixed (double* __coords_n = coord)
+            {
+                var _arg = __coords_n;
+
+                fixed (int* __ierr2 = &ierr)
+                {
+                    var __arg2 = __ierr2;
+                    __Internal.GmshModelMeshTriangulate(_arg, coord_n, dimTags, ref dimTags_n, __arg2);
+                }
+            }
+        }
+
+        public static void GmshModelMeshTetrahedralize(double[] coord, long coord_n, long** dimTags, ref long dimTags_n, ref int ierr)
+        {
+            fixed (double* __coords_n = coord)
+            {
+                var _arg = __coords_n;
+
+                fixed (int* __ierr2 = &ierr)
+                {
+                    var __arg2 = __ierr2;
+                    __Internal.GmshModelMeshTetrahedralize(_arg, coord_n, dimTags, ref dimTags_n, __arg2);
+                }
+            }
+        }
+
         public static int GmshModelGeoAddPoint(double x, double y, double z, double meshSize, int tag, ref int ierr)
         {
             fixed (int* __ierr5 = &ierr)
@@ -3519,6 +3751,25 @@ namespace Gmsh_warp
 
                     return __ret;
                 }
+            }
+        }
+
+        public static int GmshModelGeoAddCurveLoops(int[] curveTags, long curveTags_n, int** tags, ref long tags_n, ref int ierr)
+        {
+            fixed (int* __curveTags0 = curveTags)
+            {
+                var __arg0 = __curveTags0;
+                fixed(long* __tags = &tags_n)
+				{
+                    var __arg4 = __tags;
+                    fixed (int* __ierr3 = &ierr)
+                    {
+                        var __arg3 = __ierr3;
+                        var __ret = __Internal.GmshModelGeoAddCurveLoops(__arg0, curveTags_n, tags, __arg4, __arg3);
+
+                        return __ret;
+                    }
+                }                
             }
         }
 
@@ -4120,9 +4371,8 @@ namespace Gmsh_warp
         }
 
         public static int GmshModelOccAddBSplineSurface(int[] pointTags, long pointTags_n, int numPointsU, int tag, int degreeU, int degreeV, double[] weights, 
-                                                        long weights_n, double[] knotsU, long knotsU_n, double[] knotsV, long knotsV_n, 
-                                                        int[] multiplicitiesU, long multiplicitiesU_n, int[] multiplicitiesV, long multiplicitiesV_n,
-                                                        int[] wireTags, long wireTags_n, int wire3D, ref int ierr)
+            long weights_n, double[] knotsU, long knotsU_n, double[] knotsV, long knotsV_n, int[] multiplicitiesU, long multiplicitiesU_n, int[] multiplicitiesV, 
+            long multiplicitiesV_n, int[] wireTags, long wireTags_n, int wire3D, ref int ierr)
         {
             fixed (int* __pointTags0 = pointTags)
             {
@@ -4148,7 +4398,8 @@ namespace Gmsh_warp
                                         fixed (int* __ierr19 = &ierr)
                                         {
                                             var __arg19 = __ierr19;
-                                            var __ret = __Internal.GmshModelOccAddBSplineSurface(__arg0, pointTags_n, numPointsU, tag, degreeU, degreeV, __arg6, weights_n, __arg8, knotsU_n, __arg10, knotsV_n, __arg12, multiplicitiesU_n, __arg14, multiplicitiesV_n, __arg16, wireTags_n, wire3D, __arg19);
+                                            var __ret = __Internal.GmshModelOccAddBSplineSurface(__arg0, pointTags_n, numPointsU, tag, degreeU, degreeV, __arg6, weights_n, __arg8, 
+                                                knotsU_n, __arg10, knotsV_n, __arg12, multiplicitiesU_n, __arg14, multiplicitiesV_n, __arg16, wireTags_n, wire3D, __arg19);
                                             return __ret;
                                         }
                                     }
@@ -4161,7 +4412,7 @@ namespace Gmsh_warp
         }
 
         public static int GmshModelOccAddBezierSurface(int[] pointTags, long pointTags_n, int numPointsU, int tag, int[] wireTags,
-                                                                      long wireTags_n, int wire3D, ref int ierr)
+            long wireTags_n, int wire3D, ref int ierr)
         {
             fixed (int* __pointTags0 = pointTags)
             {
@@ -5215,6 +5466,42 @@ namespace Gmsh_warp
             }
         }
 
+        public static void GmshFltkSetStatusMessage(string action, int graphics, ref int ierr)
+        {
+            fixed (int* __ierr2 = &ierr)
+            {
+                var __arg2 = __ierr2;
+                __Internal.GmshFltkSetStatusMessage(action, graphics, __arg2);
+            }
+        }
+
+        public static void GmshFltkShowContextWindow(int dim, int tag, ref int ierr)
+        {
+            fixed (int* __ierr2 = &ierr)
+            {
+                var __arg2 = __ierr2;
+                __Internal.GmshFltkShowContextWindow(dim, tag, __arg2);
+            }
+        }
+
+        public static void GmshFltkOpenTreeItem(string name, ref int ierr)
+        {
+            fixed (int* __ierr2 = &ierr)
+            {
+                var __arg2 = __ierr2;
+                __Internal.GmshFltkOpenTreeItem(name, __arg2);
+            }
+        }
+
+        public static void GmshFltkCloseTreeItem(string name, ref int ierr)
+        {
+            fixed (int* __ierr2 = &ierr)
+            {
+                var __arg2 = __ierr2;
+                __Internal.GmshFltkCloseTreeItem(name, __arg2);
+            }
+        }
+
         public static void GmshOnelabSet(string data, string format, ref int ierr)
         {
             fixed (int* __ierr2 = &ierr)
@@ -5296,6 +5583,19 @@ namespace Gmsh_warp
             {
                 var __arg2 = __ierr2;
                 __Internal.GmshOnelabRun(name, command, __arg2);
+            }
+        }
+
+        public static void GmshOnelabGetNames(string search, byte*** value, ref long value_n, ref int ierr)
+        {
+            fixed (long* __value_n2 = &value_n)
+            {
+                var __arg2 = __value_n2;
+                fixed (int* __ierr3 = &ierr)
+                {
+                    var __arg3 = __ierr3;
+                    __Internal.GmshOnelabGetString(search, value, __arg2, __arg3);
+                }
             }
         }
 

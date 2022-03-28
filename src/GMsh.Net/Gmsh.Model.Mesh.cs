@@ -1,8 +1,8 @@
-using Gmsh_warp;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Gmsh_warp;
 using UnsafeEx;
 
 namespace GmshNet
@@ -799,11 +799,92 @@ namespace GmshNet
                         int* edgeNum_ptr;
                         long edgeNum_n = 0;
 
-                        Gmsh_Warp.GmshModelMeshGetGetEdges(edgeNodes, edgeNodes.LongLength, &edgeNum_ptr, ref edgeNum_n, ref Gmsh._staticreff);
+                        Gmsh_Warp.GmshModelMeshGetEdges(edgeNodes, edgeNodes.LongLength, &edgeNum_ptr, ref edgeNum_n, ref Gmsh._staticreff);
 
                         var edgeNum = UnsafeHelp.ToIntArray(edgeNum_ptr, edgeNum_n);
                         Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                         return edgeNum;
+                    }
+                }
+
+                /// <summary>
+                /// Get the global unique mesh face identifiers `faceTags' and orientations
+                /// `faceOrientations' for an input list of node tag triplets (if `faceType'
+                /// == 3) or quadruplets (if `faceType' == 4) defining these faces,
+                /// concatenated in the vector `nodeTags'. Mesh faces are created e.g. by
+                /// `createFaces()', `getKeys()' or `addFaces()'.
+                /// </summary>
+                public static void GetFaces(int faceType, int[] nodeTags, out int[] faceTags, out int[] faceOrientations)
+                {
+                    unsafe
+                    {
+                        int* faceTags_ptr;
+                        long faceTags_n = 0;
+                        int* faceOrientations_ptr;
+                        long faceOrientations_n = 0;
+
+                        Gmsh_Warp.GmshModelMeshGetGetFaces(faceType, nodeTags, nodeTags.LongLength, &faceTags_ptr, ref faceTags_n, &faceOrientations_ptr, ref faceOrientations_n, ref Gmsh._staticreff);
+
+                        faceTags = UnsafeHelp.ToIntArray(faceTags_ptr, faceTags_n);
+                        faceOrientations = UnsafeHelp.ToIntArray(faceOrientations_ptr, faceOrientations_n);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    }
+                }
+
+                /// <summary>
+                /// Get the global unique mesh edge identifiers `edgeTags' and orientations
+                /// `edgeOrientation' for an input list of node tag pairs defining these
+                /// edges, concatenated in the vector `nodeTags'. Mesh edges are created e.g.
+                /// by `createEdges()', `getKeys()' or `addEdges()'. The reference positive
+                /// orientation is n1 < n2, where n1 and n2 are the tags of the two edge
+                /// nodes, which corresponds to the local orientation of edge-based basis
+                /// functions as well.
+                /// </summary>
+                public static void CreateEdges(ValueTuple<int, int>[] dimTags = default)
+                {
+                    var dimTags_array = dimTags.ToIntArray();
+                    Gmsh_Warp.GmshModelMeshCreateEdges(dimTags_array, dimTags_array.LongLength, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                }
+
+                /// <summary>
+                /// Get the global unique mesh face identifiers `faceTags' and orientations
+                /// `faceOrientations' for an input list of node tag triplets (if `faceType'
+                /// == 3) or quadruplets (if `faceType' == 4) defining these faces,
+                /// concatenated in the vector `nodeTags'. Mesh faces are created e.g. by
+                /// `createFaces()', `getKeys()' or `addFaces()'.
+                /// </summary>
+                public static void CreateFaces(ValueTuple<int, int>[] dimTags = default)
+                {
+                    var dimTags_array = dimTags.ToIntArray();
+                    Gmsh_Warp.GmshModelMeshCreateFaces(dimTags_array, dimTags_array.LongLength, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                }
+
+                /// <summary>
+                /// // Remove all meshing constraints from the model entities `dimTags'. If
+                /// `dimTags' is empty, remove all constraings.
+                /// </summary>
+                public static void RemoveConstraints(ValueTuple<int, int>[] dimTags = default)
+                {
+                    var dimTags_array = dimTags.ToIntArray();
+                    Gmsh_Warp.GmshModelMeshRemoveConstraints(dimTags_array, dimTags_array.LongLength, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                }
+
+                /// <summary>
+                ///  Get the entities (if any) embedded in the model entity of dimension `dim'
+                /// and tag `tag'.
+                /// </summary>
+                public static ValueTuple<int, int>[] GetEmbedded(int dim, int tag)
+                {
+                    unsafe
+                    {
+                        int* ptrss;
+                        long outcount = 0;
+                        Gmsh_Warp.GmshModelMeshGetEmbedded(dim, tag, &ptrss, ref outcount, ref Gmsh._staticreff);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                        return UnsafeHelp.ToIntArray(ptrss, outcount).ToIntPair();
                     }
                 }
 
@@ -1255,6 +1336,38 @@ namespace GmshNet
                 }
 
                 /// <summary>
+                /// Triangulate the points given in the `coord' vector as pairs of u, v
+                /// coordinates, and return the node tags (with numbering starting at 1) of
+                /// the resulting triangles in `tri'.
+                /// </summary>
+                public static void Triangulate(double[] coord, out long[] tri)
+                {
+                    unsafe
+                    {
+                        long* tri_ptr;
+                        long tri_n = 0;
+                        Gmsh_Warp.GmshModelMeshTriangulate(coord, coord.LongLength, &tri_ptr, ref tri_n, ref Gmsh._staticreff);
+                        tri = UnsafeHelp.ToLongArray(tri_ptr, tri_n);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    }
+                }
+
+                /// <summary>
+                /// Tetrahedralize the points given in the coord vector as triplets of x, y, z coordinates, and return the node tags (with numbering starting at 1) of the resulting tetrahedra in tetra.
+                /// </summary>
+                public static void Tetrahedralize(double[] coord, out long[] tetra)
+                {
+                    unsafe
+                    {
+                        long* tri_ptr;
+                        long tri_n = 0;
+                        Gmsh_Warp.GmshModelMeshTetrahedralize(coord, coord.LongLength, &tri_ptr, ref tri_n, ref Gmsh._staticreff);
+                        tetra = UnsafeHelp.ToLongArray(tri_ptr, tri_n);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    }
+                }
+
+                /// <summary>
                 /// Split (into two triangles) all quadrangles in surface `tag' whose quality
                 /// is lower than `quality'. If `tag' &lt; 0, split quadrangles in all surfaces.
                 /// </summary>
@@ -1274,7 +1387,7 @@ namespace GmshNet
                 /// `curveAngle'. 
                 /// If exportDiscrete is set, clear any built-in CAD kernel entities and export the discrete entities in the built-in CAD kernel.
                 /// </summary>
-                public static void ClassifySurfaces(double angle, bool boundary, bool forReparametrization, double curveAngle, bool exportDiscrete = true)
+                public static void ClassifySurfaces(double angle, bool boundary = true, bool forReparametrization = false, double curveAngle = Math.PI, bool exportDiscrete = true)
                 {
                     Gmsh_Warp.GmshModelMeshClassifySurfaces(angle, Convert.ToInt32(boundary), Convert.ToInt32(forReparametrization), curveAngle, Convert.ToInt32(exportDiscrete), ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);

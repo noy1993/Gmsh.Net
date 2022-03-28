@@ -161,6 +161,23 @@ namespace GmshNet
                 }
 
                 /// <summary>
+                /// Add curve loops in the built-in CAD representation based on the curves curveTags. Return the tags of found curve loops, if any.
+                /// </summary>
+                /// <returns></returns>
+                public static int[] AddCurveLoops(int[] curveTags)
+                {
+					unsafe
+                    {
+                        int* pointTags_ptr;
+                        long pointTags_n = 0;
+                        Gmsh_Warp.GmshModelGeoAddCurveLoops(curveTags, curveTags.LongLength, &pointTags_ptr, ref pointTags_n, ref Gmsh._staticreff);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                        var tags = UnsafeHelp.ToIntArray(pointTags_ptr, pointTags_n);
+                        return tags;
+                    }
+                }
+
+                /// <summary>
                 /// Add a plane surface defined by one or more curve loops `wireTags'. The
                 /// first curve loop defines the exterior contour; additional curve loop
                 /// define holes. If `tag' is positive, set the tag explicitly; otherwise a
@@ -219,7 +236,8 @@ namespace GmshNet
                 /// (cumulative) height of the different layers, normalized to 1. If `dx' ==
                 /// `dy' == `dz' == 0, the entities are extruded along their normal.
                 /// </summary>
-                public static void Extrude(ValueTuple<int, int>[] dimTags, double dx, double dy, double dz, out ValueTuple<int, int>[] outDimTags, int[] numElements = default, double[] heights = default, bool recombine = false)
+                public static void Extrude(ValueTuple<int, int>[] dimTags, double dx, double dy, double dz, out ValueTuple<int, int>[] outDimTags, 
+                    int[] numElements = default, double[] heights = default, bool recombine = false)
                 {
                     var dimarray = dimTags.ToIntArray();
                     unsafe
@@ -245,7 +263,8 @@ namespace GmshNet
                 /// of elements in each layer. If `height' is not empty, it provides the
                 /// (cumulative) height of the different layers, normalized to 1.
                 /// </summary>
-                public static void Revolve(ValueTuple<int, int>[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle, out ValueTuple<int, int>[] outDimTags, int[] numElements = default, double[] heights = default, bool recombine = false)
+                public static void Revolve(ValueTuple<int, int>[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle, 
+                    out ValueTuple<int, int>[] outDimTags, int[] numElements = default, double[] heights = default, bool recombine = false)
                 {
                     var dimarray = dimTags.ToIntArray();
                     unsafe
@@ -272,7 +291,8 @@ namespace GmshNet
                 /// in each layer. If `height' is not empty, it provides the (cumulative)
                 /// height of the different layers, normalized to 1.
                 /// </summary>
-                public static void Twist(ValueTuple<int, int>[] dimTags, double x, double y, double z, double dx, double dy, double dz, double ax, double ay, double az, double angle, out ValueTuple<int, int>[] outDimTags, int[] numElements = default, double[] heights = default, bool recombine = false)
+                public static void Twist(ValueTuple<int, int>[] dimTags, double x, double y, double z, double dx, double dy, double dz, double ax, double ay, double az, double angle, 
+                    out ValueTuple<int, int>[] outDimTags, int[] numElements = default, double[] heights = default, bool recombine = false)
                 {
                     var dimarray = dimTags.ToIntArray();
                     unsafe

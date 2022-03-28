@@ -116,6 +116,22 @@ namespace GmshNet
                 Gmsh_Warp.GmshOnelabRun(name, command, ref Gmsh._staticreff);
                 Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
             }
+
+            /// <summary>
+            /// Get the names of the parameters in the ONELAB database matching the search regular expression. If search is empty, return all the names.
+            /// </summary>
+            public static string[] GetNames(string search = "")
+            {
+                unsafe
+                {
+                    byte** valueptr;
+                    long value_n = 0;
+                    Gmsh_Warp.GmshOnelabGetNames(search, &valueptr, ref value_n, ref Gmsh._staticreff);
+                    var names = UnsafeHelp.ToString(valueptr, value_n);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    return names;
+                }
+            }
         }
     }
 }
