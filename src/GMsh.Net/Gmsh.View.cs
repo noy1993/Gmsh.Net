@@ -12,7 +12,7 @@ namespace GmshNet
         /// <summary>
         /// Post-processing view functions
         /// </summary>
-        public static class View
+        public static partial class View
         {
             /// <summary>
             /// Add a new post-processing view, with name `name'. If `tag' is positive use
@@ -49,7 +49,7 @@ namespace GmshNet
             /// <summary>
             /// Get the tags of all views.
             /// </summary>
-            public static void GetTags(int tag)
+            public static int[] GetTags()
             {
                 unsafe
                 {
@@ -57,6 +57,7 @@ namespace GmshNet
                     long tags_n = 0;
                     Gmsh_Warp.GmshViewGetTags(&tags_ptr, ref tags_n, ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    return UnsafeHelp.ToIntArray(tags_ptr, tags_n);
                 }
             }
 
@@ -233,15 +234,6 @@ namespace GmshNet
             }
 
             /// <summary>
-            /// Copy the options from the view with tag `refTag' to the view with tag `tag'.
-            /// </summary>
-            public static void CopyOptions(int refTag, int tag)
-            {
-                Gmsh_Warp.GmshViewCopyOptions(refTag, tag, ref Gmsh._staticreff);
-                Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
-            }
-
-            /// <summary>
             /// Combine elements (if `what' == "elements") or steps (if `what' == "steps")
             /// of all views (`how' == "all"), all visible views (`how' == "visible") or all
             /// views having the same name (`how' == "name"). Remove original views if
@@ -254,16 +246,22 @@ namespace GmshNet
             }
 
             /// <summary>
-            /// Probe the view `tag' for its `value' at point (`x', `y', `z'). Return only
-            /// the value at step `step' is `step' is positive. Return only values with
-            /// `numComp' if `numComp' is positive. Return the gradient of the `value' if
-            /// `gradient' is set. Probes with a geometrical tolerance (in the reference
-            /// unit cube) of `tolerance' if `tolerance' is not zero. Return the result from
-            /// the element described by its coordinates if `xElementCoord', `yElementCoord'
-            /// and `zElementCoord' are provided.
-            /// If dim is >= 0, return only elements of the specified dimension.
+            /// Probe the view `tag' for its `value' at point (`x', `y', `z'). If no match
+            /// is found, `value' is returned empty. Return only the value at step `step' is
+            /// `step' is positive. Return only values with `numComp' if `numComp' is
+            /// positive. Return the gradient of the `value' if `gradient' is set. If
+            /// `distanceMax' is zero, only return a result if an exact match inside an
+            /// element in the view is found; if `distanceMax' is positive and an exact
+            /// match is not found, return the value at the closest node if it is closer
+            /// than `distanceMax'; if `distanceMax' is negative and an exact match is not
+            /// found, always return the value at the closest node. The distance to the
+            /// match is returned in `distance'. Return the result from the element
+            /// described by its coordinates if `xElementCoord', `yElementCoord' and
+            /// `zElementCoord' are provided. If `dim' is >= 0, return only matches from
+            /// elements of the specified dimension.
             /// </summary>
-            public static double[] Probe(int tag, double x, double y, double z, int step = -1, int numComp = -1, bool gradient = false, double tolerance = 0, double[] xElemCoord = default, double[] yElemCoord = default, double[] zElemCoord = default, int dim = -1)
+            public static void Probe(int tag, double x, double y, double z, out double[] value, out double distance, int step = -1, int numComp = -1, bool gradient = false, double tolerance = 0, 
+                double[] xElemCoord = default, double[] yElemCoord = default, double[] zElemCoord = default, int dim = -1)
             {
                 unsafe
                 {
@@ -272,10 +270,11 @@ namespace GmshNet
                     if (xElemCoord == default) xElemCoord = new double[0];
                     if (yElemCoord == default) yElemCoord = new double[0];
                     if (zElemCoord == default) zElemCoord = new double[0];
-                    Gmsh_Warp.GmshViewProbe(tag, x, y, z, &value_ptr, ref value_n, step, numComp, Convert.ToInt32(gradient), tolerance, xElemCoord, xElemCoord.LongLength, yElemCoord, yElemCoord.LongLength, zElemCoord, zElemCoord.LongLength, dim, ref Gmsh._staticreff);
-                    var value = UnsafeHelp.ToDoubleArray(value_ptr, value_n);
+                    distance = -1;
+                    Gmsh_Warp.GmshViewProbe(tag, x, y, z, &value_ptr, ref value_n, ref distance, step, numComp, Convert.ToInt32(gradient), tolerance, xElemCoord, xElemCoord.LongLength, 
+                        yElemCoord, yElemCoord.LongLength, zElemCoord, zElemCoord.LongLength, dim, ref Gmsh._staticreff);
+                    value = UnsafeHelp.ToDoubleArray(value_ptr, value_n);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
-                    return value;
                 }
             }
 

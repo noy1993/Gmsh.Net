@@ -1,4 +1,5 @@
 ﻿using Gmsh_warp;
+using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using UnsafeEx;
@@ -131,6 +132,29 @@ namespace GmshNet
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                     return names;
                 }
+            }
+
+            /// <summary>
+            /// Check if any parameters in the ONELAB database used by the client name have been changed.
+            /// </summary>
+            public static bool GetChanged(string name)
+            {
+                unsafe
+                {                    
+                    int value = Gmsh_Warp.GmshOnelabGetChanged(name, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    return Convert.ToBoolean(value);
+                }
+            }
+
+            /// <summary>
+            /// Set the changed flag to value `value' for all the parameters in the ONELAB
+            /// database used by the client `name'.
+            /// </summary>
+            public static void SetChanged(string name, bool value)
+			{
+                Gmsh_Warp.GmshOnelabSetChanged(name, Convert.ToInt32(value), ref Gmsh._staticreff);
+                Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
             }
         }
     }

@@ -570,14 +570,15 @@ namespace GmshNet
             }
 
             /// <summary>
-            /// Check if the parametric coordinates provided in `parametricCoord' correspond
-            /// to points inside the entitiy of dimension `dim' and tag `tag', and return
-            /// the number of points inside. This feature is only available for a subset of
-            /// curves and surfaces, depending on the underyling geometrical representation.
+            /// Check if the coordinates (or the parametric coordinates if `parametric' is
+            /// set) provided in `coord' correspond to points inside the entity of dimension
+            /// `dim' and tag `tag', and return the number of points inside. This feature is
+            /// only available for a subset of entities, depending on the underyling
+            /// geometrical representation.
             /// </summary>
-            public static int IsInside(int dim, int tag, double[] parametricCoord)
+            public static int IsInside(int dim, int tag, double[] parametricCoord, bool parametric = false)
             {
-                var index = Gmsh_Warp.GmshModelIsInside(dim, tag, parametricCoord, parametricCoord.LongLength, ref Gmsh._staticreff);
+                var index = Gmsh_Warp.GmshModelIsInside(dim, tag, parametricCoord, parametricCoord.LongLength, Convert.ToInt32(parametric), ref Gmsh._staticreff);
                 Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                 return index;
             }
@@ -676,6 +677,9 @@ namespace GmshNet
                 Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
             }
 
+            /// <summary>
+            /// Get the color of the model entity of dimension `dim' and tag `tag'.
+            /// </summary>
             public static Color GetColor(int dim, int tag)
             {
                 GetColor(dim, tag, out int r, out int g, out int b, out int a);
@@ -689,6 +693,26 @@ namespace GmshNet
             {
                 Gmsh_Warp.GmshModelSetCoordinates(tag, x, y, z, ref Gmsh._staticreff);
                 Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+            }
+
+            /// <summary>
+            /// Set the tag of the entity of dimension `dim' and tag `tag' to the new value
+            /// `newTag'.
+            /// </summary>
+            public static void SetTag(int dim, int tag, int newTag)
+			{
+                Gmsh_Warp.GmshModelSetTag(dim, tag, newTag, ref Gmsh._staticreff);
+                Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+            }
+
+            /// <summary>
+            /// Return the number of partitions in the model.
+            /// </summary>
+            public static int GetNumberOfPartitions()
+            {
+                var ret = Gmsh_Warp.GmshModelGetNumberOfPartitions(ref Gmsh._staticreff);
+                Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                return ret;
             }
         }
     }

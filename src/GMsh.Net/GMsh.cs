@@ -15,24 +15,26 @@ namespace GmshNet
         internal static int _staticreff = 0;
 
         /// <summary>
-        ///  Initialize Gmsh. This must be called before any call to the other functions in
-        /// the API. If `argc' and `argv' (or just `argv' in Python or Julia) are
-        /// provided, they will be handled in the same way as the command line arguments
-        /// in the Gmsh app. If `readConfigFiles' is set, read system Gmsh configuration
-        /// files (gmshrc and gmsh-options).
+        /// Initialize the Gmsh API. This must be called before any call to the other functions in the API. 
+        /// If argc and argv (or just argv in Python or Julia) are provided, they will be handled in the same way 
+        /// as the command line arguments in the Gmsh app. If readConfigFiles is set, read system Gmsh configuration 
+        /// files (gmshrc and gmsh-options). If run is set, run in the same way as the Gmsh app, either interactively 
+        /// or in batch mode depending on the command line arguments. If run is not set, initializing the API sets the 
+        /// options "General.AbortOnError" to 2 and "General.Terminal" to 1. If compiled with OpenMP support, 
+        /// it also sets the number of threads to "General.NumThreads".
         /// </summary>
-        public static void Initialize(char[] args = null, bool readConfigFiles = true)
+        public static void Initialize(int argc = 0, char[] argv = null, bool readConfigFiles = true, bool run = false)
         {
             unsafe
             {
-                if (args == null)
+                if (argv == null)
                 {
-                    Gmsh_Warp.GmshInitialize(0, null, Convert.ToInt32(readConfigFiles), ref _staticreff);
+                    Gmsh_Warp.GmshInitialize(argc, null, Convert.ToInt32(readConfigFiles), Convert.ToInt32(run), ref _staticreff);
                 }
                 else
                 {
-                    var array = Marshal.UnsafeAddrOfPinnedArrayElement(args, 0);
-                    Gmsh_Warp.GmshInitialize(args.Length, (byte**)array.ToPointer(), Convert.ToInt32(readConfigFiles), ref _staticreff);
+                    var array = Marshal.UnsafeAddrOfPinnedArrayElement(argv, 0);
+                    Gmsh_Warp.GmshInitialize(argc, (byte**)array.ToPointer(), Convert.ToInt32(readConfigFiles), Convert.ToInt32(run), ref _staticreff);
                 }
                 CheckException(MethodBase.GetCurrentMethod().MethodHandle);
             }
@@ -115,6 +117,16 @@ namespace GmshNet
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Return true if the Gmsh API is initialized, and false if not.
+        /// </summary>
+        public static bool IsInitialized()
+		{
+            var value = Convert.ToBoolean(Gmsh_Warp.GmshIsInizialized(ref _staticreff));
+            CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+            return value;
         }
     }
 

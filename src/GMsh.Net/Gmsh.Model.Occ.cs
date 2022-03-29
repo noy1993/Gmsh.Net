@@ -218,10 +218,12 @@ namespace GmshNet
                 /// the tag of the surface. If `pointTags' are provided, force the surface to
                 /// pass through the given points.
                 /// </summary>
-                public static int AddSurfaceFilling(int wireTag, int tag = -1, int[] pointTags = default)
+                public static int AddSurfaceFilling(int wireTag, int tag = -1, int[] pointTags = default, int degree = 3, int numPointsOnCurves = 15, int numIter = 2,
+                    bool anisotropic = false, double tol2d = 0.00001, double tol3d = 0.0001, double tolAng = 0.01, double tolCurv = 0.1, int maxDegree = 8, int maxSegments = 9)
                 {
                     if (pointTags == default) pointTags = new int[0];
-                    var index = Gmsh_Warp.GmshModelOccAddSurfaceFilling(wireTag, tag, pointTags, pointTags.LongLength, ref Gmsh._staticreff);
+                    var index = Gmsh_Warp.GmshModelOccAddSurfaceFilling(wireTag, tag, pointTags, pointTags.LongLength, degree, numPointsOnCurves, numIter,
+                        Convert.ToInt16(anisotropic), tol2d, tol3d, tolAng, tolCurv, maxDegree, maxSegments, ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                     return index;
                 }
@@ -428,7 +430,7 @@ namespace GmshNet
                 /// selected automatically. The optional argument `angle' defines the angular
                 /// opening (from 0 to 2*Pi). Return the tag of the wedge.
                 /// </summary>
-                public static int AddTorus(double x, double y, double z, double dx, double dy, double dz, double r1, double r2, int tag = -1, double angle = 2 * Math.PI)
+                public static int AddTorus(double x, double y, double z, double r1, double r2, int tag = -1, double angle = 2 * Math.PI)
                 {
                     var index = Gmsh_Warp.GmshModelOccAddTorus(x, y, z, r1, r2, tag, angle, ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
@@ -612,6 +614,19 @@ namespace GmshNet
                 }
 
                 /// <summary>
+                /// Convert the entities dimTags to NURBS.
+                /// </summary>
+                public static void ConvertToNURBS(ValueTuple<int, int>[] dimTags)
+				{
+					unsafe
+					{
+                        var dimTags_array = dimTags.ToIntArray();
+                        Gmsh_Warp.GmshModelOccConvertToNURBS(dimTags_array, dimTags_array.LongLength, ref Gmsh._staticreff);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    }
+				}
+
+                /// <summary>
                 /// Compute the boolean union (the fusion) of the entities `objectDimTags' and
                 /// `toolDimTags'. Return the resulting entities in `outDimTags'. If `tag' is
                 /// positive, try to set the tag explicitly (only valid if the boolean
@@ -769,7 +784,7 @@ namespace GmshNet
                 {
                     var dimTags_array = dimTags.ToIntArray();
                     Gmsh_Warp.GmshModelOccRotate(dimTags_array, dimTags_array.LongLength,
-                        x, y, y, ax, ay, az, angle, ref Gmsh._staticreff);
+                        x, y, z, ax, ay, az, angle, ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                 }
 
@@ -782,7 +797,7 @@ namespace GmshNet
                 {
                     var dimTags_array = dimTags.ToIntArray();
                     Gmsh_Warp.GmshModelOccDilate(dimTags_array, dimTags_array.LongLength,
-                        x, y, y, a, b, c, ref Gmsh._staticreff);
+                        x, y, z, a, b, c, ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                 }
 
@@ -1059,6 +1074,22 @@ namespace GmshNet
                 }
 
                 /// <summary>
+                /// Get the tags of the curve loops making up the surface of tag surfaceTag.
+                /// </summary>
+                public static int[] GetCurveLoops(int surfaceTag)
+                {
+                    unsafe
+                    {
+                        int* tags_ptr;
+                        long tags_n = 0;
+                        Gmsh_Warp.GmshModelOccGetCurveLoops(surfaceTag, &tags_ptr, ref tags_n, ref Gmsh._staticreff);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                        var outDimTags_array = UnsafeHelp.ToIntArray(tags_ptr, tags_n);
+                        return outDimTags_array;
+                    }
+                }
+
+                /// <summary>
                 /// Synchronize the OpenCASCADE CAD representation with the current Gmsh
                 /// model. This can be called at any time, but since it involves a non trivial
                 /// amount of processing, the number of synchronization points should normally
@@ -1068,6 +1099,19 @@ namespace GmshNet
                 {
                     Gmsh_Warp.GmshModelOccSynchronize(ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                }
+
+                public static int[] GetSurfaceLoops(int volumeTag)
+				{
+                    unsafe
+                    {
+                        int* tags_ptr;
+                        long tags_n = 0;
+                        Gmsh_Warp.GmshModelOccGetSurfaceLoops(volumeTag, &tags_ptr, ref tags_n, ref Gmsh._staticreff);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                        var outDimTags_array = UnsafeHelp.ToIntArray(tags_ptr, tags_n);
+                        return outDimTags_array;
+                    }
                 }
             }
         }
