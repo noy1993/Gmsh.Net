@@ -4,10 +4,10 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Platforms>AnyCPU;x64</Platforms>
     <RootNamespace>GmshNet</RootNamespace>
-    <Version>1.0.495.0</Version>
+    <Version>1.0.495.1</Version>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <AssemblyVersion>1.0.495.0</AssemblyVersion>
-    <FileVersion>1.0.495.0</FileVersion>
+    <AssemblyVersion>1.0.495.1</AssemblyVersion>
+    <FileVersion>1.0.495.1</FileVersion>
     <Description>Gmsh.net is a C# wrapper of the Gmsh C++ library. https://gmsh.info</Description>
     <PackageProjectUrl>https://github.com/noy1993/Gmsh.Net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/noy1993/Gmsh.Net</RepositoryUrl>
