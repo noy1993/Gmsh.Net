@@ -78,7 +78,7 @@ namespace GmshNet
                 /// </summary>
                 public static void Refine()
                 {
-                    Gmsh_Warp.GmshModelMeshRecombine(ref Gmsh._staticreff);
+                    Gmsh_Warp.GmshModelMeshRefine(ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                 }
 
