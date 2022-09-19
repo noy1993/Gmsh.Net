@@ -26,11 +26,14 @@ namespace GmshNet
                 }
 
                 /// <summary>
-                /// Partition the mesh of the current model into `numPart' partitions.
+                /// Partition the mesh of the current model into numPart partitions. Optionally, elementTags and
+                /// partitions can be provided to specify the partition of each element explicitly.
                 /// </summary>
-                public static void Partition(int numPart)
+                public static void Partition(int numPart, long[] elementTags = default, int[] partitions = default)
                 {
-                    Gmsh_Warp.GmshModelMeshPartition(numPart, ref Gmsh._staticreff);
+                    if (elementTags == default) elementTags = new long[0];
+                    if (partitions == default) partitions = new int[0];
+                    Gmsh_Warp.GmshModelMeshPartition(numPart, elementTags, elementTags.Length, partitions, partitions.Length, ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                 }
 
@@ -75,7 +78,7 @@ namespace GmshNet
                 /// </summary>
                 public static void Refine()
                 {
-                    Gmsh_Warp.GmshModelMeshRecombine(ref Gmsh._staticreff);
+                    Gmsh_Warp.GmshModelMeshRefine(ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                 }
 
@@ -192,11 +195,12 @@ namespace GmshNet
 
                 /// <summary>
                 /// Get the coordinates and the parametric coordinates (if any) of the node
-                /// with tag `tag'. This function relies on an internal cache (a vector in
-                /// case of dense node numbering, a map otherwise); for large meshes accessing
-                /// nodes in bulk is often preferable.
+                /// with tag `tag', as well as the dimension `dim' and tag `tag' of the entity
+                /// on which the node is classified. This function relies on an internal cache
+                /// (a vector in case of dense node numbering, a map otherwise); for large
+                /// meshes accessing nodes in bulk is often preferable.
                 /// </summary>
-                public static void GetNode(long nodeTag, out double[] coord, out double[] parametricCoord)
+                public static void GetNode(long nodeTag, out double[] coord, out double[] parametricCoord, out int dim, out int tag)
                 {
                     unsafe
                     {
@@ -204,7 +208,9 @@ namespace GmshNet
                         long coord_n = 0;
                         double* parametricCoord_ptr;
                         long parametricCoord_n = 0;
-                        Gmsh_Warp.GmshModelMeshGetNode(nodeTag, &coord_ptr, ref coord_n, &parametricCoord_ptr, ref parametricCoord_n, ref Gmsh._staticreff);
+                        dim = -1;
+                        tag = -1;
+                        Gmsh_Warp.GmshModelMeshGetNode(nodeTag, &coord_ptr, ref coord_n, &parametricCoord_ptr, ref parametricCoord_n, ref dim, ref tag, ref Gmsh._staticreff);
                         coord = UnsafeHelp.ToDoubleArray(coord_ptr, coord_n);
                         parametricCoord = UnsafeHelp.ToDoubleArray(parametricCoord_ptr, parametricCoord_n);
                         Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
@@ -349,14 +355,16 @@ namespace GmshNet
                 /// a map otherwise); for large meshes accessing elements in bulk is often
                 /// preferable.
                 /// </summary>
-                public static void GetElement(long elementTag, out int elementType, out long[] nodeTags)
+                public static void GetElement(long elementTag, out int elementType, out long[] nodeTags, out int dim, out int tag)
                 {
                     unsafe
                     {
                         elementType = 0;
                         long* nodeTags_ptr;
                         long nodeTags_n = 0;
-                        Gmsh_Warp.GmshModelMeshGetElement(elementTag, ref elementType, &nodeTags_ptr, ref nodeTags_n, ref Gmsh._staticreff);
+                        dim = -1;
+                        tag = -1;
+                        Gmsh_Warp.GmshModelMeshGetElement(elementTag, ref elementType, &nodeTags_ptr, ref nodeTags_n, ref dim, ref tag, ref Gmsh._staticreff);
                         nodeTags = UnsafeHelp.ToLongArray(nodeTags_ptr, nodeTags_n);
                         Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                     }
@@ -731,14 +739,14 @@ namespace GmshNet
                 /// `getBasisFunctions'. For Lagrange basis functions the call is superfluous
                 /// as it will return a vector of zeros.
                 /// </summary>
-                public static void GetBasisFunctionsOrientationForElements(int elementType, string functionSpaceType, out int[] basisFunctionsOrientation, int tag = -1, long task = 0, long numTasks = 1)
+                public static void GetBasisFunctionsOrientation(int elementType, string functionSpaceType, out int[] basisFunctionsOrientation, int tag = -1, long task = 0, long numTasks = 1)
                 {
                     unsafe
                     {
                         int* basisFunctionsOrientation_ptr;
                         long basisFunctionsOrientation_n = 0;
 
-                        Gmsh_Warp.GmshModelMeshGetBasisFunctionsOrientationForElements(elementType, functionSpaceType, &basisFunctionsOrientation_ptr, ref basisFunctionsOrientation_n,
+                        Gmsh_Warp.GmshModelMeshGetBasisFunctionsOrientation(elementType, functionSpaceType, &basisFunctionsOrientation_ptr, ref basisFunctionsOrientation_n,
                             tag, task, numTasks,
                             ref Gmsh._staticreff);
 
@@ -772,7 +780,7 @@ namespace GmshNet
                 }
 
                 /// <summary>
-                /// Preallocate data before calling `getBasisFunctionsOrientationForElements' with `numTasks' > 1. For C and C++ only.
+                /// Preallocate data before calling `getBasisFunctionsOrientation' with `numTasks' > 1. For C and C++ only.
                 /// </summary>
                 public static int[] PreallocateBasisFunctionsOrientationForElements(int elementType, int tag = -1)
                 {
@@ -780,7 +788,7 @@ namespace GmshNet
                     {
                         int* basisFunctionsOrientation_ptr;
                         long basisFunctionsOrientation_n = 0;
-                        Gmsh_Warp.GmshModelMeshPreallocateBasisFunctionsOrientationForElements(elementType,
+                        Gmsh_Warp.GmshModelMeshPreallocateBasisFunctionsOrientation(elementType,
                              &basisFunctionsOrientation_ptr, ref basisFunctionsOrientation_n, tag, ref Gmsh._staticreff);
                         var basisFunctionsOrientation = UnsafeHelp.ToIntArray(basisFunctionsOrientation_ptr, basisFunctionsOrientation_n);
                         Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
@@ -799,11 +807,93 @@ namespace GmshNet
                         int* edgeNum_ptr;
                         long edgeNum_n = 0;
 
-                        Gmsh_Warp.GmshModelMeshGetGetEdges(edgeNodes, edgeNodes.LongLength, &edgeNum_ptr, ref edgeNum_n, ref Gmsh._staticreff);
+                        Gmsh_Warp.GmshModelMeshGetEdges(edgeNodes, edgeNodes.LongLength, &edgeNum_ptr, ref edgeNum_n, ref Gmsh._staticreff);
 
                         var edgeNum = UnsafeHelp.ToIntArray(edgeNum_ptr, edgeNum_n);
                         Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                         return edgeNum;
+                    }
+                }
+
+                /// <summary>
+                /// Get the global unique mesh face identifiers `faceTags' and orientations
+                /// `faceOrientations' for an input list of node tag triplets (if `faceType'
+                /// == 3) or quadruplets (if `faceType' == 4) defining these faces,
+                /// concatenated in the vector `nodeTags'. Mesh faces are created e.g. by
+                /// `createFaces()', `getKeys()' or `addFaces()'.
+                /// </summary>
+                public static void GetFaces(int faceType, int[] nodeTags, out int[] faceTags, out int[] faceOrientations)
+                {
+                    unsafe
+                    {
+                        int* faceTags_ptr;
+                        long faceTags_n = 0;
+                        int* faceOrientations_ptr;
+                        long faceOrientations_n = 0;
+
+                        Gmsh_Warp.GmshModelMeshGetGetFaces(faceType, nodeTags, nodeTags.LongLength, &faceTags_ptr, ref faceTags_n, &faceOrientations_ptr, ref faceOrientations_n, ref Gmsh._staticreff);
+
+                        faceTags = UnsafeHelp.ToIntArray(faceTags_ptr, faceTags_n);
+                        faceOrientations = UnsafeHelp.ToIntArray(faceOrientations_ptr, faceOrientations_n);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    }
+                }
+
+                /// <summary>
+                /// Get the global unique mesh edge identifiers `edgeTags' and orientations
+                /// `edgeOrientation' for an input list of node tag pairs defining these
+                /// edges, concatenated in the vector `nodeTags'. Mesh edges are created e.g.
+                /// by `createEdges()', `getKeys()' or `addEdges()'. The reference positive
+                /// orientation is n1 < n2, where n1 and n2 are the tags of the two edge
+                /// nodes, which corresponds to the local orientation of edge-based basis
+                /// functions as well.
+                /// </summary>
+                public static void CreateEdges(ValueTuple<int, int>[] dimTags = default)
+				{
+                    if (dimTags == default) dimTags = new (int, int)[0];
+                    var dimTags_array = dimTags.ToIntArray();
+                    Gmsh_Warp.GmshModelMeshCreateEdges(dimTags_array, dimTags_array.LongLength, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                }
+
+                /// <summary>
+                /// Get the global unique mesh face identifiers `faceTags' and orientations
+                /// `faceOrientations' for an input list of node tag triplets (if `faceType'
+                /// == 3) or quadruplets (if `faceType' == 4) defining these faces,
+                /// concatenated in the vector `nodeTags'. Mesh faces are created e.g. by
+                /// `createFaces()', `getKeys()' or `addFaces()'.
+                /// </summary>
+                public static void CreateFaces(ValueTuple<int, int>[] dimTags = default)
+                {
+                    var dimTags_array = dimTags.ToIntArray();
+                    Gmsh_Warp.GmshModelMeshCreateFaces(dimTags_array, dimTags_array.LongLength, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                }
+
+                /// <summary>
+                /// // Remove all meshing constraints from the model entities `dimTags'. If
+                /// `dimTags' is empty, remove all constraings.
+                /// </summary>
+                public static void RemoveConstraints(ValueTuple<int, int>[] dimTags = default)
+                {
+                    var dimTags_array = dimTags.ToIntArray();
+                    Gmsh_Warp.GmshModelMeshRemoveConstraints(dimTags_array, dimTags_array.LongLength, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                }
+
+                /// <summary>
+                ///  Get the entities (if any) embedded in the model entity of dimension `dim'
+                /// and tag `tag'.
+                /// </summary>
+                public static ValueTuple<int, int>[] GetEmbedded(int dim, int tag)
+                {
+                    unsafe
+                    {
+                        int* ptrss;
+                        long outcount = 0;
+                        Gmsh_Warp.GmshModelMeshGetEmbedded(dim, tag, &ptrss, ref outcount, ref Gmsh._staticreff);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                        return UnsafeHelp.ToIntArray(ptrss, outcount).ToIntPair();
                     }
                 }
 
@@ -815,7 +905,7 @@ namespace GmshNet
                 /// locating basis functions for sorting purposes. Warning: this is an
                 /// experimental feature and will probably change in a future release.
                 /// </summary>
-                public static void GetKeysForElements(int elementType, string functionSpaceType, out ValueTuple<int, int>[] keys, out double[] coord, int tag = -1, bool returnCoord = true)
+                public static void GetKeys(int elementType, string functionSpaceType, out ValueTuple<int, int>[] keys, out double[] coord, int tag = -1, bool returnCoord = true)
                 {
                     unsafe
                     {
@@ -823,7 +913,7 @@ namespace GmshNet
                         long keys_n = 0;
                         double* coord_ptr;
                         long coord_n = 0;
-                        Gmsh_Warp.GmshModelMeshGetKeysForElements(elementType, functionSpaceType,
+                        Gmsh_Warp.GmshModelMeshGetKeys(elementType, functionSpaceType,
                              &keys_ptr, ref keys_n, &coord_ptr, ref coord_n, tag, Convert.ToInt32(returnCoord), ref Gmsh._staticreff);
                         keys = UnsafeHelp.ToIntArray(keys_ptr, keys_n).ToIntPair();
                         coord = UnsafeHelp.ToDoubleArray(coord_ptr, coord_n);
@@ -834,17 +924,20 @@ namespace GmshNet
                 /// <summary>
                 /// Get the keys for a single element `elementTag'.
                 /// </summary>
-                public static void GetKeysForElement(long elementTag, string functionSpaceType, out ValueTuple<int, int>[] keys, out double[] coord, bool returnCoord = true)
+                public static void GetKeysForElement(long elementTag, string functionSpaceType, out int[] typeKeys, out long[] entityKeys, out double[] coord, bool returnCoord = true)
                 {
                     unsafe
                     {
-                        int* keys_ptr;
-                        long keys_n = 0;
+                        int* typeKeys_ptr;
+                        long typeKeys_n = 0;
+                        long* entityKeys_ptr;
+                        long entityKeys_n = 0;
                         double* coord_ptr;
                         long coord_n = 0;
                         Gmsh_Warp.GmshModelMeshGetKeysForElement(elementTag, functionSpaceType,
-                             &keys_ptr, ref keys_n, &coord_ptr, ref coord_n, Convert.ToInt32(returnCoord), ref Gmsh._staticreff);
-                        keys = UnsafeHelp.ToIntArray(keys_ptr, keys_n).ToIntPair();
+                             &typeKeys_ptr, ref typeKeys_n, &entityKeys_ptr, ref entityKeys_n, &coord_ptr, ref coord_n, Convert.ToInt32(returnCoord), ref Gmsh._staticreff);
+                        typeKeys = UnsafeHelp.ToIntArray(typeKeys_ptr, typeKeys_n);
+                        entityKeys = UnsafeHelp.ToLongArray(entityKeys_ptr, entityKeys_n);
                         coord = UnsafeHelp.ToDoubleArray(coord_ptr, coord_n);
                         Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                     }
@@ -854,9 +947,9 @@ namespace GmshNet
                 /// Get the number of keys by elements of type `elementType' for function
                 /// space named `functionSpaceType'.
                 /// </summary>
-                public static int GetNumberOfKeysForElements(int elementType, string functionSpaceType)
+                public static int GetNumberOfKeys(int elementType, string functionSpaceType)
                 {
-                    var index = Gmsh_Warp.GmshModelMeshGetNumberOfKeysForElements(elementType, functionSpaceType, ref Gmsh._staticreff);
+                    var index = Gmsh_Warp.GmshModelMeshGetNumberOfKeys(elementType, functionSpaceType, ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                     return index;
                 }
@@ -869,14 +962,14 @@ namespace GmshNet
                 /// of the function associated with the key. Warning: this is an experimental
                 /// feature and will probably change in a future release.
                 /// </summary>
-                public static ValueTuple<int, int>[] GetInformationForElements(ValueTuple<int, int>[] keys, int elementType, string functionSpaceType)
+                public static ValueTuple<int, int>[] GetKeysInformation(ValueTuple<int, int>[] keys, int elementType, string functionSpaceType)
                 {
                     unsafe
                     {
                         int* infokeys_ptr;
                         long infokeys_n = 0;
                         var key_array = keys.ToIntArray();
-                        Gmsh_Warp.GmshModelMeshGetInformationForElements(key_array, key_array.LongLength, elementType, functionSpaceType,
+                        Gmsh_Warp.GmshModelMeshGetKeysInformation(key_array, key_array.LongLength, elementType, functionSpaceType,
                              &infokeys_ptr, ref infokeys_n, ref Gmsh._staticreff);
                         var infoKeys = UnsafeHelp.ToIntArray(infokeys_ptr, infokeys_n).ToIntPair();
 
@@ -1215,6 +1308,83 @@ namespace GmshNet
                 }
 
                 /// <summary>
+                /// Get master entities `tagsMaster' for the entities of dimension `dim' and
+                /// tags `tags'.
+                /// </summary>
+                public static int[] GetPeriodic(int dim, int[] tags)
+				{
+					unsafe
+                    {
+                        int* tagsMaster_ptr;
+                        int tagsMaster_n = 0;
+                        Gmsh_Warp.GmshModelMeshGetPeriodic(dim, tags, tags.LongLength, &tagsMaster_ptr, ref tagsMaster_n, ref Gmsh._staticreff);
+                        var tagsMaster = UnsafeHelp.ToIntArray(tagsMaster_ptr, tagsMaster_n);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                        return tagsMaster;
+                    }
+				}
+
+                /// <summary>
+                /// Get the global unique identifiers `edgeTags' and the nodes `edgeNodes' of
+                /// the edges in the mesh. Mesh edges are created e.g. by `createEdges()',
+                /// `getKeys()' or addEdges().
+                /// </summary>
+                public static void GetAllEdges(out long[] edgeTags, out long[] edgeNodes)
+				{
+					unsafe
+					{
+                        long* edgeTags_ptr = default;
+                        long edgeTags_n = 0;
+                        long* edgeNodes_ptr = default;
+                        long edgeNodes_n = 0;
+                        Gmsh_Warp.GmshModelMeshGetAllEdges(&edgeTags_ptr, ref edgeTags_n, &edgeNodes_ptr, ref edgeNodes_n, ref Gmsh._staticreff);
+                        edgeTags = UnsafeHelp.ToLongArray(edgeTags_ptr, edgeTags_n);
+                        edgeNodes = UnsafeHelp.ToLongArray(edgeNodes_ptr, edgeNodes_n);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    }
+				}
+
+                /// <summary>
+                /// Get the global unique identifiers `faceTags' and the nodes `faceNodes' of
+                /// the faces of type `faceType' in the mesh. Mesh faces are created e.g. by
+                /// `createFaces()', `getKeys()' or addFaces().
+                /// </summary>
+                public static void GetAllFaces(int faceType, out long[] faceTags, out long[] faceNodes)
+                {
+                    unsafe
+                    {
+                        long* edgeTags_ptr = default;
+                        long edgeTags_n = 0;
+                        long* edgeNodes_ptr = default;
+                        long edgeNodes_n = 0;
+                        Gmsh_Warp.GmshModelMeshGetAllFaces(faceType, & edgeTags_ptr, ref edgeTags_n, &edgeNodes_ptr, ref edgeNodes_n, ref Gmsh._staticreff);
+                        faceTags = UnsafeHelp.ToLongArray(edgeTags_ptr, edgeTags_n);
+                        faceNodes = UnsafeHelp.ToLongArray(edgeNodes_ptr, edgeNodes_n);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    }
+                }
+
+                /// <summary>
+                /// Add mesh edges defined by their global unique identifiers `edgeTags' and
+                /// their nodes `edgeNodes'.
+                /// </summary>
+                public static void GetAddEdges(long[] edgeTags, long[] edgeNodes)
+                {
+                    Gmsh_Warp.GmshModelMeshAddEdges(edgeTags, edgeTags.LongLength, edgeNodes, edgeNodes.LongLength, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                }
+
+                /// <summary>
+                /// Add mesh faces of type `faceType' defined by their global unique
+                /// identifiers `faceTags' and their nodes `faceNodes'.
+                /// </summary>
+                public static void AddFacees(int faceType, long[] edgeTags, long[] edgeNodes)
+                {
+                    Gmsh_Warp.GmshModelMeshAddFaces(faceType, edgeTags, edgeTags.LongLength, edgeNodes, edgeNodes.LongLength, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                }
+
+                /// <summary>
                 /// Get the master entity `tagMaster', the node tags `nodeTags' and their
                 /// corresponding master node tags `nodeTagsMaster', and the affine transform
                 /// `affineTransform' for the entity of dimension `dim' and tag `tag'. If
@@ -1255,6 +1425,38 @@ namespace GmshNet
                 }
 
                 /// <summary>
+                /// Triangulate the points given in the `coord' vector as pairs of u, v
+                /// coordinates, and return the node tags (with numbering starting at 1) of
+                /// the resulting triangles in `tri'.
+                /// </summary>
+                public static void Triangulate(double[] coord, out long[] tri)
+                {
+                    unsafe
+                    {
+                        long* tri_ptr;
+                        long tri_n = 0;
+                        Gmsh_Warp.GmshModelMeshTriangulate(coord, coord.LongLength, &tri_ptr, ref tri_n, ref Gmsh._staticreff);
+                        tri = UnsafeHelp.ToLongArray(tri_ptr, tri_n);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    }
+                }
+
+                /// <summary>
+                /// Tetrahedralize the points given in the coord vector as triplets of x, y, z coordinates, and return the node tags (with numbering starting at 1) of the resulting tetrahedra in tetra.
+                /// </summary>
+                public static void Tetrahedralize(double[] coord, out long[] tetra)
+                {
+                    unsafe
+                    {
+                        long* tri_ptr;
+                        long tri_n = 0;
+                        Gmsh_Warp.GmshModelMeshTetrahedralize(coord, coord.LongLength, &tri_ptr, ref tri_n, ref Gmsh._staticreff);
+                        tetra = UnsafeHelp.ToLongArray(tri_ptr, tri_n);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    }
+                }
+
+                /// <summary>
                 /// Split (into two triangles) all quadrangles in surface `tag' whose quality
                 /// is lower than `quality'. If `tag' &lt; 0, split quadrangles in all surfaces.
                 /// </summary>
@@ -1274,7 +1476,7 @@ namespace GmshNet
                 /// `curveAngle'. 
                 /// If exportDiscrete is set, clear any built-in CAD kernel entities and export the discrete entities in the built-in CAD kernel.
                 /// </summary>
-                public static void ClassifySurfaces(double angle, bool boundary, bool forReparametrization, double curveAngle, bool exportDiscrete = true)
+                public static void ClassifySurfaces(double angle, bool boundary = true, bool forReparametrization = false, double curveAngle =Math.PI, bool exportDiscrete = true)
                 {
                     Gmsh_Warp.GmshModelMeshClassifySurfaces(angle, Convert.ToInt32(boundary), Convert.ToInt32(forReparametrization), curveAngle, Convert.ToInt32(exportDiscrete), ref Gmsh._staticreff);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
@@ -1356,6 +1558,100 @@ namespace GmshNet
                         var viewTags = UnsafeHelp.ToIntArray(viewTags_ptr, viewTags_n);
                         Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                         return viewTags;
+                    }
+                }
+
+                /// <summary>
+                /// Reverse the orientation of the elements in the entities dimTags. If dimTags is empty, 
+                /// reverse the orientation of the elements in the whole mesh.
+                /// </summary>
+                public static void Reverse(ValueTuple<int, int>[] dimTags = default)
+                {
+                    if (dimTags == default) dimTags = new (int, int)[0];
+                    var dimTags_array = dimTags.ToIntArray();
+                    Gmsh_Warp.GmshModelMeshReverse(dimTags_array, dimTags.LongLength, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                }
+
+                /// <summary>
+                /// Apply the affine transformation `affineTransform' (16 entries of a 4x4
+                /// matrix, by row; only the 12 first can be provided for convenience) to the
+                /// coordinates of the nodes classified on the entities `dimTags'. If
+                /// `dimTags' is empty, transform all the nodes in the mesh.
+                /// </summary>
+                public static void AffineTransform(double[] affineTransform, ValueTuple<int, int>[] dimTags = default)
+                {
+                    if (dimTags == default) dimTags = new (int, int)[0];
+                    var dimTags_array = dimTags.ToIntArray();
+                    Gmsh_Warp.GmshModelMeshAffineTransform(affineTransform, affineTransform.LongLength, dimTags_array, dimTags.LongLength, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                }
+
+                /// <summary>
+                /// Get the maximum tag maxTag of a node in the mesh.
+                /// </summary>
+                public static int GetMaxNodeTag()
+				{
+                    long maxTag = -1;
+                    Gmsh_Warp.GmshModelMeshGetMaxNodeTag(ref maxTag, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    return (int)maxTag;
+                }
+
+                /// <summary>
+                /// Get the maximum tag maxTag of an element in the mesh.
+                /// </summary>
+                public static int GetMaxElementTag()
+                {
+                    long maxTag = -1;
+                    Gmsh_Warp.GmshModelMeshGetMaxElementTag(ref maxTag, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    return (int)maxTag;
+                }
+
+                /// <summary>
+                /// Get the mesh size constraints (if any) associated with the model entities
+                /// `dimTags'. A zero entry in the output `sizes' vector indicates that no
+                /// size constraint is specified on the corresponding entity.
+                /// </summary>
+                public static double[] GetSizes(ValueTuple<int, int>[] dimTags)
+                {
+                    unsafe
+                    {
+                        double* sizes_ptr;
+                        long sizes_n = 0;
+                        var dimTags_array = dimTags.ToIntArray();
+                        Gmsh_Warp.GmshModelMeshGetSizes(dimTags_array, dimTags.LongLength, &sizes_ptr, ref sizes_n, ref Gmsh._staticreff);
+                        var sizes = UnsafeHelp.ToDoubleArray(sizes_ptr, sizes_n);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                        return sizes;
+                    }
+                }
+
+                /// <summary>
+                /// Import the model STL representation (if available) as the current mesh.
+                /// </summary>
+                public static void ImportStl()
+				{
+                    Gmsh_Warp.GmshModelMeshImportStl(ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                }
+
+                /// <summary>
+                /// Get the `tags' of any duplicate nodes in the mesh of the entities
+                /// `dimTags'. If `dimTags' is empty, consider the whole mesh.
+                /// </summary>
+                public static int[] GetDuplicateNodes(ValueTuple<int, int>[] dimTags = default)
+                {
+                    unsafe
+                    {
+                        int* nodes_ptr;
+                        long nodes_n = 0;
+                        if (dimTags == default) dimTags = new (int, int)[0];
+                        var dimTags_array = dimTags.ToIntArray();
+                        Gmsh_Warp.GmshModelMeshGetDuplicateNodes(&nodes_ptr, ref nodes_n, dimTags_array, dimTags.LongLength, ref Gmsh._staticreff);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                        return UnsafeHelp.ToIntArray(nodes_ptr, nodes_n);
                     }
                 }
             }

@@ -4,10 +4,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Platforms>AnyCPU;x64</Platforms>
     <RootNamespace>GmshNet</RootNamespace>
-    <Version>1.0.484.1</Version>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <AssemblyVersion>1.0.484.1</AssemblyVersion>
-    <FileVersion>1.0.484.1</FileVersion>
+    <Version>1.0.495.1</Version>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <AssemblyVersion>1.0.495.1</AssemblyVersion>
+    <FileVersion>1.0.495.1</FileVersion>
+    <Description>Gmsh.net is a C# wrapper of the Gmsh C++ library. https://gmsh.info</Description>
+    <PackageProjectUrl>https://github.com/noy1993/Gmsh.Net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/noy1993/Gmsh.Net</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -29,4 +32,14 @@
   <ItemGroup>
     <ProjectReference Include="..\..\UnsafeEx\UnsafeEx.csproj" />
   </ItemGroup>
+      
+	<ItemGroup>
+		<None Include="..\..\dll\windows\gmsh-4.9.dll" Pack="true" PackagePath="build\">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Include="..\..\dll\windows\GMsh.Net.targets" Pack="true" PackagePath="build\">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
 </Project>

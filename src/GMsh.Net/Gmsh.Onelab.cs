@@ -1,4 +1,5 @@
 ﻿using Gmsh_warp;
+using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using UnsafeEx;
@@ -114,6 +115,45 @@ namespace GmshNet
             public static void Run(string name, string command = "")
             {
                 Gmsh_Warp.GmshOnelabRun(name, command, ref Gmsh._staticreff);
+                Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+            }
+
+            /// <summary>
+            /// Get the names of the parameters in the ONELAB database matching the search regular expression. If search is empty, return all the names.
+            /// </summary>
+            public static string[] GetNames(string search = "")
+            {
+                unsafe
+                {
+                    byte** valueptr;
+                    long value_n = 0;
+                    Gmsh_Warp.GmshOnelabGetNames(search, &valueptr, ref value_n, ref Gmsh._staticreff);
+                    var names = UnsafeHelp.ToString(valueptr, value_n);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    return names;
+                }
+            }
+
+            /// <summary>
+            /// Check if any parameters in the ONELAB database used by the client name have been changed.
+            /// </summary>
+            public static bool GetChanged(string name)
+            {
+                unsafe
+                {                    
+                    int value = Gmsh_Warp.GmshOnelabGetChanged(name, ref Gmsh._staticreff);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    return Convert.ToBoolean(value);
+                }
+            }
+
+            /// <summary>
+            /// Set the changed flag to value `value' for all the parameters in the ONELAB
+            /// database used by the client `name'.
+            /// </summary>
+            public static void SetChanged(string name, bool value)
+			{
+                Gmsh_Warp.GmshOnelabSetChanged(name, Convert.ToInt32(value), ref Gmsh._staticreff);
                 Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
             }
         }

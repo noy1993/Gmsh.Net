@@ -1,5 +1,6 @@
 ﻿using Gmsh_warp;
 using System.Reflection;
+using UnsafeEx;
 
 namespace GmshNet
 {
@@ -78,6 +79,68 @@ namespace GmshNet
                     {
                         Gmsh_Warp.GmshModelMeshFieldSetAsBoundaryLayer(tag, ref Gmsh._staticreff);
                         Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    }
+
+                    /// <summary>
+                    /// Get the list of all fields.
+                    /// </summary>
+                    public static int[] List()
+					{
+						unsafe
+						{
+                            int* tags_ptr;
+                            int tags_n = 0;
+                            Gmsh_Warp.GmshModelMeshFieldList(&tags_ptr, ref tags_n, ref Gmsh._staticreff);
+                            var tags = UnsafeHelp.ToIntArray(tags_ptr, tags_n);
+                            Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                            return tags;
+                        }
+					}
+
+                    /// <summary>
+                    /// Get the type `fieldType' of the field with tag `tag'
+                    /// </summary>
+                    public static string GetType(int tag)
+					{
+                        string fileType = string.Empty;
+                        Gmsh_Warp.GmshModelMeshFieldGetType(tag, ref fileType, ref Gmsh._staticreff);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                        return fileType;
+                    }
+
+                    /// <summary>
+                    /// Get the value of the numerical option `option' for field `tag'
+                    /// </summary>
+                    public static double GetNumber(int tag, string option)
+					{
+                        double number = -1;
+                        Gmsh_Warp.GmshModelMeshFieldGetNumber(tag, option, ref number, ref Gmsh._staticreff);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                        return number;
+                    }
+
+                    /// <summary>
+                    /// Get the value of the numerical list option `option' for field `tag'
+                    /// </summary>
+                    public static double[] GetNumbers(int tag, string option)
+                    {
+                        unsafe
+                        {
+                            double* number_ptr;
+                            int number_n = 0;
+                            Gmsh_Warp.GmshModelMeshFieldGetNumbers(tag, option, &number_ptr, ref number_n, ref Gmsh._staticreff);
+                            Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                            var number = UnsafeHelp.ToDoubleArray(number_ptr, number_n);
+                            return number;
+                        }
+                    }
+
+                    public static string GetString(int tag, string option)
+					{
+                        string value = string.Empty;
+                        Gmsh_Warp.GmshModelMeshFieldGetString(tag, option, ref value, ref Gmsh._staticreff);
+                        Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                        return value;
                     }
                 }
             }

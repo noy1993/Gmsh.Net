@@ -323,6 +323,24 @@ namespace GmshNet
             }
 
             /// <summary>
+            /// Get the file name (if any) associated with the current model. A file name is associated when a model is read from a file on disk.
+            /// </summary>
+            public static string GetFileName()
+            {
+                string name = string.Empty;
+                Gmsh_Warp.GmshModelGetFileName(ref name);
+                return name;
+            }
+
+            /// <summary>
+            /// Set the file name associated with the current model.
+            /// </summary>
+            public static void SetFileName(string name)
+            {
+                Gmsh_Warp.GmshModelSetFileName(name);
+            }
+
+            /// <summary>
             /// Get the type of the entity of dimension `dim' and tag `tag'.
             /// </summary>
             public static string GetType(int dim, int tag)
@@ -407,6 +425,32 @@ namespace GmshNet
                     double* ptr;
                     long outcount = 0;
                     Gmsh_Warp.GmshModelGetDerivative(dim, tag, parametricCoord, parametricCoord.LongLength, &ptr, ref outcount, ref Gmsh._staticreff);
+                    var derivatives = UnsafeHelp.ToDoubleArray(ptr, outcount);
+                    Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                    return derivatives;
+                }
+            }
+
+            /// <summary>
+            /// Evaluate the second derivative of the parametrization of the entity of
+            /// dimension `dim' and tag `tag' at the parametric coordinates
+            /// `parametricCoord'. Only valid for `dim' equal to 1 (with `parametricCoord'
+            /// containing parametric coordinates on the curve) or 2 (with `parametricCoord'
+            /// containing pairs of u, v parametric coordinates on the surface,
+            /// concatenated: [p1u, p1v, p2u, ...]). For `dim' equal to 1 return the x, y, z
+            /// components of the second derivative with respect to u [d1uux, d1uuy, d1uuz,
+            /// d2uux, ...]; for `dim' equal to 2 return the x, y, z components of the
+            /// second derivative with respect to u and v, and the mixed derivative with
+            /// respect to u and v: [d1uux, d1uuy, d1uuz, d1vvx, d1vvy, d1vvz, d1uvx, d1uvy,
+            /// d1uvz, d2uux, ...].
+            /// </summary>
+            public static double[] GetSecondDerivative(int dim, int tag, double[] parametricCoord)
+            {
+                unsafe
+                {
+                    double* ptr;
+                    long outcount = 0;
+                    Gmsh_Warp.GmshModelGetSecondDerivative(dim, tag, parametricCoord, parametricCoord.LongLength, &ptr, ref outcount, ref Gmsh._staticreff);
                     var derivatives = UnsafeHelp.ToDoubleArray(ptr, outcount);
                     Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                     return derivatives;
@@ -526,14 +570,15 @@ namespace GmshNet
             }
 
             /// <summary>
-            /// Check if the parametric coordinates provided in `parametricCoord' correspond
-            /// to points inside the entitiy of dimension `dim' and tag `tag', and return
-            /// the number of points inside. This feature is only available for a subset of
-            /// curves and surfaces, depending on the underyling geometrical representation.
+            /// Check if the coordinates (or the parametric coordinates if `parametric' is
+            /// set) provided in `coord' correspond to points inside the entity of dimension
+            /// `dim' and tag `tag', and return the number of points inside. This feature is
+            /// only available for a subset of entities, depending on the underyling
+            /// geometrical representation.
             /// </summary>
-            public static int IsInside(int dim, int tag, double[] parametricCoord)
+            public static int IsInside(int dim, int tag, double[] parametricCoord, bool parametric = false)
             {
-                var index = Gmsh_Warp.GmshModelIsInside(dim, tag, parametricCoord, parametricCoord.LongLength, ref Gmsh._staticreff);
+                var index = Gmsh_Warp.GmshModelIsInside(dim, tag, parametricCoord, parametricCoord.LongLength, Convert.ToInt32(parametric), ref Gmsh._staticreff);
                 Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
                 return index;
             }
@@ -632,6 +677,9 @@ namespace GmshNet
                 Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
             }
 
+            /// <summary>
+            /// Get the color of the model entity of dimension `dim' and tag `tag'.
+            /// </summary>
             public static Color GetColor(int dim, int tag)
             {
                 GetColor(dim, tag, out int r, out int g, out int b, out int a);
@@ -645,6 +693,26 @@ namespace GmshNet
             {
                 Gmsh_Warp.GmshModelSetCoordinates(tag, x, y, z, ref Gmsh._staticreff);
                 Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+            }
+
+            /// <summary>
+            /// Set the tag of the entity of dimension `dim' and tag `tag' to the new value
+            /// `newTag'.
+            /// </summary>
+            public static void SetTag(int dim, int tag, int newTag)
+			{
+                Gmsh_Warp.GmshModelSetTag(dim, tag, newTag, ref Gmsh._staticreff);
+                Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+            }
+
+            /// <summary>
+            /// Return the number of partitions in the model.
+            /// </summary>
+            public static int GetNumberOfPartitions()
+            {
+                var ret = Gmsh_Warp.GmshModelGetNumberOfPartitions(ref Gmsh._staticreff);
+                Gmsh.CheckException(MethodBase.GetCurrentMethod().MethodHandle);
+                return ret;
             }
         }
     }
